@@ -1,0 +1,134 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: MiyabiMat
+  m_Shader: {fileID: 4800000, guid: 7296a46efec407646afe9bc4aa0eb31c, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - IS_FACE
+  - USE_OUTLINE
+  - USE_SIGMOID_ATTENUATION
+  m_InvalidKeywords:
+  - _ISFACE_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap:
+    RenderType: Opaque
+  disabledShaderPasses: []
+  m_LockedProperties: _AlbedoSmoothness _OutlineWidth _OutlineZOffset _PostFrontTint
+    _PostSSSTint _PostShadowFadeTint _PostShadowTint _PostShallowFadeTint _PostShallowTint
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Ramp:
+        m_Texture: {fileID: 2800000, guid: 1404da316e645634392933e9d43fe49c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RampTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SkinRamp:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AlbedoSmoothness: 0.183
+    - _AlphaClip: 0
+    - _AlphaToMask: 0
+    - _AttenuationMode: 0
+    - _Blend: 0
+    - _BlendOp: 0
+    - _BumpScale: 1
+    - _Cull: 2
+    - _Cutoff: 0.5
+    - _DebugMode: 0
+    - _DiffuseOffset: 0
+    - _Domain: 0
+    - _DstBlend: 0
+    - _DstBlendAlpha: 0
+    - _IsBody: 0
+    - _IsFace: 1
+    - _IsHair: 0
+    - _IsRampShadow: 0
+    - _Metallic: 1
+    - _OutlineWidth: 0.5
+    - _OutlineZOffset: 0.00025
+    - _QueueOffset: 0
+    - _RampAttenuationOffset: 0
+    - _RampAttenuationSmoothness: 1
+    - _RampAttenuationStrength: 1
+    - _SampleGI: 0
+    - _ShadowOffset: 0.5
+    - _ShadowSmoothness: 2.5
+    - _ShadowStrength: 1
+    - _SigmoidAttenuationOffset: 0.5
+    - _SigmoidAttenuationSmoothness: 2.49
+    - _SigmoidAttenuationStrength: 0.71
+    - _Smoothness: 1
+    - _SrcBlend: 1
+    - _SrcBlendAlpha: 1
+    - _Surface: 0
+    - _UseOutline: 1
+    - _UseRampShadow: 0
+    - _UseSigmoidShadow: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _ForwardColor: {r: 1, g: 1, b: 1, a: 1}
+    - _FrontColor: {r: 1, g: 0.8, b: 0.8, a: 1}
+    - _MainTint: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 0.72327036, g: 0.72327036, b: 0.72327036, a: 1}
+    - _PostFrontTint: {r: 1, g: 1, b: 1, a: 1}
+    - _PostSSSTint: {r: 1, g: 0.879623, b: 0.799103, a: 1}
+    - _PostShadowFadeTint: {r: 1, g: 1, b: 1, a: 1}
+    - _PostShadowTint: {r: 1, g: 1, b: 1, a: 1}
+    - _PostShallowFadeTint: {r: 0.791298, g: 0.791298, b: 0.791298, a: 1}
+    - _PostShallowTint: {r: 0.791298, g: 0.791298, b: 0.791298, a: 1}
+    - _SSSColor: {r: 1, g: 0.5, b: 0.5, a: 1}
+    - _ShadowColor: {r: 0.86666673, g: 0.7490196, b: 0.7490196, a: 1}
+    - _ShadowColor1: {r: 0, g: 0, b: 0, a: 1}
+    - _ShadowColor2: {r: 0, g: 0, b: 0, a: 1}
+    - _ShadowColor3: {r: 0, g: 0, b: 0, a: 1}
+    - _ShadowColor4: {r: 0, g: 0, b: 0, a: 1}
+    - _ShadowColor5: {r: 0, g: 0, b: 0, a: 1}
+    - _ShadowFadeColor: {r: 0, g: 0, b: 0, a: 1}
+    - _ShallowColor: {r: 0.93333334, g: 0.8666667, b: 0.8666667, a: 1}
+    - _ShallowColor1: {r: 1, g: 1, b: 1, a: 1}
+    - _ShallowColor2: {r: 1, g: 1, b: 1, a: 1}
+    - _ShallowColor3: {r: 1, g: 1, b: 1, a: 1}
+    - _ShallowColor4: {r: 1, g: 1, b: 1, a: 1}
+    - _ShallowColor5: {r: 1, g: 1, b: 1, a: 1}
+    - _ShallowFadeColor: {r: 1, g: 0.5, b: 0.5, a: 1}
+    - _SigmoidAttenuationColor: {r: 0.8238993, g: 0.63994694, b: 0.63994694, a: 1}
+  m_BuildTextureStacks: []
