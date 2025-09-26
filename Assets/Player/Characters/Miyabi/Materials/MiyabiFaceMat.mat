@@ -12,11 +12,21 @@ Material:
   m_Parent: {fileID: 2100000, guid: 9d6e650eaae570f46acc02d569326b91, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - DYNAMICLIGHTMAP_ON
   - IS_FACE
+  - UES_OCTAHEDRAL_SMOOTH_NORMAL
   - USE_OUTLINE
+  - USE_PERLIN_NOISE
   - USE_RAMP_ATTENUATION
   m_InvalidKeywords:
+  - USE_OUT
+  - USE_OUTLINE_TEST
+  - _DEBUG_MODE
+  - _GROUP_ON
   - _ISFACE_ON
+  - _KEYWORD
+  - _USEOUTLINE_ON
+  - _USEOUT_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -42,14 +52,17 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _AlbedoSettings: 1
     - _AttenuationMode: 1
     - _DebugMode: 0
     - _DiffuseOffset: 1
     - _Domain: 0
     - _IsFace: 1
     - _ShadowOffset: 0.27
+    - _SmoothNormalMode: 2
     - _UseOutline: 1
     - _UseRampShadow: 0
+    - _group: 0
     m_Colors:
     - _MainTint: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor1: {r: 0.7058824, g: 0.54509807, b: 0.54901963, a: 1}

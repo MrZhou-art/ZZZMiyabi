@@ -10,14 +10,23 @@ Material:
   m_Name: MiyabiHairMat
   m_Shader: {fileID: 4800000, guid: 7296a46efec407646afe9bc4aa0eb31c, type: 3}
   m_Parent: {fileID: 2100000, guid: 9d6e650eaae570f46acc02d569326b91, type: 2}
-  m_ModifiedSerializedProperties: 0
+  m_ModifiedSerializedProperties: 10
   m_ValidKeywords:
+  - DYNAMICLIGHTMAP_ON
   - IS_HAIR
+  - UES_OCTAHEDRAL_SMOOTH_NORMAL
   - USE_OUTLINE
+  - USE_PERLIN_NOISE
   - USE_RAMP_ATTENUATION
   m_InvalidKeywords:
+  - USE_OUT
+  - USE_OUTLINE_TEST
+  - _DEBUG_MODE
   - _ISFACE_ON
   - _ISHAIR_ON
+  - _KEYWORD
+  - _USEOUTLINE_ON
+  - _USEOUT_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0

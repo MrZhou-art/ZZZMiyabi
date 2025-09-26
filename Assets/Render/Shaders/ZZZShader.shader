@@ -18,6 +18,15 @@ Shader "CelShaders/ZZZShader"
         [Sub(OutlineGruop)] _OutlineColor("Outline Color", Color) = (0, 0, 0, 1)
         [Sub(OutlineGruop)] _OutlineWidth("Outline Width", Range(0, 2)) = 0.3
         [Sub(OutlineGruop)] _OutlineZOffset("Outline Z Offset", Range(0, 0.01)) = 0.00025
+        [Sub(OutlineGruop)] _ExtendClampFactor("Outline Extend Clamp Factor", Range(0, 1)) = 1
+        
+        [KWEnum(OutlineGruop, ModelNormal, USE_MODEL_NORMAL, UV Projection Smooth Normal, UES_UV_PROJECTION_SMOOTH_NORMAL, Octahedral Smooth Normal, UES_OCTAHEDRAL_SMOOTH_NORMAL)]
+        _SmoothNormalMode ("Smooth Normal Mode", float) = 2
+        
+        [KWEnum(OutlineGruop, On, USE_PERLIN_NOISE, Off, _)]
+        _PerlinNoise ("Use Perlin Noise", float) = 1
+        [Sub(OutlineGruop)] _NoiseTillOffset("Noise Till Offset", Vector) = (100, 100, 0, 0)
+        [Sub(OutlineGruop)] _NoiseAmplify("Noise Amplify", Float) = -1
         
         
         // Albedo
@@ -88,7 +97,14 @@ Shader "CelShaders/ZZZShader"
         [Sub(MTexGroup)] _Metallic("Metallic", Range(0, 3)) = 1.0
         [Sub(MTexGroup)] _Smoothness("Smoothness", Range(0, 2)) = 1.0
         
-        //////////////////////////////////////////////////////////
+        // LightMap
+        [Title(LightMap Settings)]
+        [Main(LightMapGruop, _, off, off)] LightMapSettings ("LightMap Settings", float) = 1
+        [KWEnum(LightMapGruop, Dynamic, DYNAMICLIGHTMAP_ON, Static, _)]
+         _LightMapMode("LightMap Mode", Int) = 0
+        
+//////////////////////////// Render State Settings //////////////////////////////
+
         [Title(Render State Settings)]
         [Main(PassGroup, _, off, off)] _PassSettings ("Render State Settings", float) = 1
         
@@ -142,19 +158,19 @@ Shader "CelShaders/ZZZShader"
                 "LightMode"="UniversalForward"
             }
             
-            // -------------------------------------
-            // Render State Commands
+            // ----- Render State Commands -------
             AlphaToMask[_AlphaToMask]
             Cull Off
 
             HLSLPROGRAM
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-                    
             #pragma target 2.0
 
             // -------------- 宏开关 ---------------
             #pragma shader_feature DEBUG_MODE
+
+            // TODO: PBR 工作流
+            #pragma shader_feature _SPECULAR_SETUP
+            #pragma shader_feature DYNAMICLIGHTMAP_ON
             
             #pragma shader_feature IS_FACE
             #pragma shader_feature IS_BODY
@@ -164,213 +180,26 @@ Shader "CelShaders/ZZZShader"
             #pragma shader_feature USE_RAMP_ATTENUATION
             #pragma shader_feature USE_LINEAR_PARTITIONED_ATTENUATION
 
-            // ----------- Shader Stages ----------
+            
+            
+            // -------- Shader ----------
             #pragma vertex ZZZVert
             #pragma fragment ZZZFrag
             
-            // -------------------------------------
-            // Material Keywords
+            // ------ Material Keywords ---------
             #pragma shader_feature_local_fragment _SURFACE_TYPE_TRANSPARENT
             #pragma shader_feature_local_fragment _ALPHATEST_ON
             #pragma shader_feature_local_fragment _ALPHAMODULATE_ON
 
-            // -------------------------------------
-            // Unity defined keywords
+            // ---- Unity defined keywords ------
             #pragma multi_compile_fog
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
             #pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
             #pragma multi_compile _ DEBUG_DISPLAY
             #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
 
-            // -------------- Base Functions --------------
-            #include "Assets/Render/Shaders/ShaderLib/BaseNPRFunctions.hlsl"
-            #include "Assets/Render/Shaders/ShaderLib/BasePBRFunctions.hlsl"
-            
-            //---------------- Structs ---------------------
-            struct Attributes
-            {
-                float4 positionOS : POSITION;
-                float2 uv : TEXCOORD0;
-                float2 uv1 : TEXCOORD1;// for debug
-                
-                float3 normalOS : NORMAL;
-                float4 tangentOS : TANGENT;
-                
-                float4 color : COLOR;// for debug
-            };
-
-            struct Varyings
-            {
-                float4 positionCS : SV_POSITION;
-                float3 positionWS : TEXCOORD0;
-                float2 uv : TEXCOORD1;
-                float2 uv1 : TEXCOORD7;// for debug
-                
-                float3 normalWS : TEXCOORD2;
-                float3 tangentWS : TEXCOORD3;
-                float3 bitangentWS : TEXCOORD4;
-
-                float4 color : TEXCOORD5;// for debug
-            };
-
-            // ---------------- Uniform Variable ---------------------
-            #include "Assets/Render/Shaders/ShaderLib/UniformVarable.hlsl"
-
-            // ---------------- Shader Stages ---------------------
-            Varyings ZZZVert(Attributes input)
-            {
-                Varyings output;
-                
-                output.uv = input.uv;
-                output.uv1 = input.uv1;// for debug
-                
-                VertexPositionInputs positionInputs = GetVertexPositionInputs(input.positionOS.xyz);
-                output.positionCS = positionInputs.positionCS;
-                output.positionWS = positionInputs.positionWS;
-                
-                VertexNormalInputs normalInputs = GetVertexNormalInputs(input.normalOS, input.tangentOS);
-                output.normalWS = normalInputs.normalWS;
-                output.tangentWS = normalInputs.tangentWS;
-                output.bitangentWS = normalInputs.bitangentWS;
-
-                output.color = input.color;// for debug
-                
-                return output;
-            }
-
-            float4 ZZZFrag(Varyings input) : SV_Target
-            {
-                // ------ Main Vector ------
-                Light mainLight = GetMainLight();
-                float3 lightDir = normalize(mainLight.direction);
-                float3 viewDir = normalize(_WorldSpaceCameraPos - input.positionWS);
-                
-                // ------ Texture Data ------
-                // Albedo Texture
-                float4 albedo = DecodeAlbedoTexture(_AlbedoMap, sampler_AlbedoMap, input.uv);
-#ifndef IS_FACE
-                // Decode Normal Texture
-                NormalTexData normalTexData = DecodeNormalTexture(_NormalTex, sampler_NormalTex, input.uv, input.tangentWS, input.bitangentWS, input.normalWS, _BumpScale);
-        
-                // Decode M Texture
-                MTexData mTexData = DecodeMTexture(_MTex, sampler_MTex, input.uv);
-#endif
-
-#ifdef IS_FACE
-                NormalTexData normalTexData;
-                normalTexData.normalWS = input.normalWS;
-                normalTexData.diffuseBias = 0;
-        
-                MTexData mTexData;
-                mTexData.materialID = 0;
-                mTexData.metallic = 0;
-                mTexData.smoothness = 0;
-                mTexData.specular = 0;
-#endif
-
-                // ------ Base Data ------
-                float2 uv = input.uv;
-                float2 uv1 = input.uv1;// for debug
-                float3 lightColor = mainLight.color;
-
-                float diffuseBias = normalTexData.diffuseBias;
-                float3 normalWS = normalTexData.normalWS;
-                
-                float materialID = mTexData.materialID;
-                float metallic = lerp(0, mTexData.metallic, _Metallic);
-                float smoothness = lerp(0, mTexData.smoothness, _Smoothness);
-                float specular  = mTexData.specular;
-                
-                float NoL = dot(normalWS, lightDir);
-                float NoV = dot(normalWS, viewDir);
-
-
-#ifdef DEBUG_MODE
-                
-                return half4(materialID.xxx / 4, 1);
-                
-#endif
-                // ------ Cel Shading ------
-                // Albedo
-                float3 albedoColor = 0;
-                
-                
-#if defined(USE_SIGMOID_ATTENUATION) || defined(USE_RAMP_ATTENUATION)
-
-                float halfLambert = clamp(NoL * 0.5 + 0.5, 0, 1);
-#endif
-
-#ifdef USE_SIGMOID_ATTENUATION
-
-                float shadowArea = sigmoid(1 - halfLambert, _SigmoidAttenuationOffset, _SigmoidAttenuationSmoothness * 10) * _SigmoidAttenuationStrength;
-                float3 sigmoidShadow = lerp(1, _SigmoidAttenuationColor.rgb, shadowArea);
-                albedoColor = albedo.rgb * sigmoidShadow;
-
-                
-#endif
-
-                
-#ifdef USE_RAMP_ATTENUATION
-                
-                halfLambert = clamp(pow(halfLambert, _RampAttenuationSmoothness) + _RampAttenuationOffset, 0.0001, 0.9999);
-                float3 shadowRamp = SampleShadowRamp(_RampTex, sampler_RampTex, float2(halfLambert,materialID / 4)).rgb * _RampAttenuationStrength;
-                albedoColor = albedo.rgb * shadowRamp;
-
-#endif
-
-#ifdef USE_LINEAR_PARTITIONED_ATTENUATION
-                
-                // attenuation
-                AttenuationData attenuation = CalculateAttenuation(_AlbedoSmoothness, NoL, diffuseBias + _DiffuseOffset);
-
-                // Select Color by MaterialID
-                float4 selectedShadowColor = SelectByMaterialID(materialID, _ShadowColor1, _ShadowColor2, _ShadowColor3, _ShadowColor4, _ShadowColor5);
-                float4 selectedShallowColor = SelectByMaterialID(materialID, _ShallowColor1, _ShallowColor2, _ShallowColor3, _ShallowColor4, _ShallowColor5);
-
-                // Tinting
-                albedoColor = CalculateAlbedo(
-                    selectedShadowColor.rgb,
-                    selectedShallowColor.rgb,
-                    _PostShadowFadeTint.rgb,
-                    _PostShadowTint.rgb,
-                    _PostShallowFadeTint.rgb,
-                    _PostShallowTint.rgb,
-                    _PostSSSTint.rgb,
-                    _PostFrontTint.rgb,
-                    attenuation,
-                    lightColor);
-
-               albedoColor = albedoColor * albedo.rgb;
-
-#endif
-
-                
-                // PBR
-
-                BRDFData brdfData;
-                brdfData.albedo = albedo.rgb;
-                brdfData.diffuse = albedo.rgb;
-                brdfData.specular = specular;
-                brdfData.reflectivity = specular;
-                brdfData.perceptualRoughness = 1 - smoothness;
-                brdfData.roughness = 1 - smoothness;
-                brdfData.roughness2 = brdfData.roughness * brdfData.roughness;
-                brdfData.grazingTerm;
-                brdfData.normalizationTerm = brdfData.roughness * 4 + 2.0; // roughness * 4.0 + 2.0
-                brdfData.roughness2MinusOne = brdfData.roughness * brdfData.roughness - 1.0; // roughness^2 - 1.0
-                
-
-                // half DirectBRDFSpecular = NPRDirectBRDFSpecular()
-
-                return float4(albedoColor, 1.0);
-
-                return float4(_AttenuationMode.xxx / 1.9, 1.0);
-                
-                // for debug
-                float4 Id = SelectByMaterialID(materialID, float4(1,0,0,1), float4(0,1,0,1), float4(0,0,1,1), float4(1,1,0,1), float4(1,0,1,1));
-                return Id;
-            }
+            // --------- Shader Stages -----------
+            #include "Assets/Render/Shaders/ZZZForwardPass.hlsl"
             
             ENDHLSL
         }
@@ -386,205 +215,36 @@ Shader "CelShaders/ZZZShader"
             
             Cull Front
             
-            HLSLINCLUDE
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-            #include "Packages/com.unity.shadergraph/ShaderGraphLibrary/ShaderVariablesFunctions.hlsl"
+            HLSLPROGRAM
+
+            
+            // -------------- 宏开关 ---------------
+            #pragma shader_feature USE_OUTLINE
+
+            // Perlin Noise
+            #pragma shader_feature USE_PERLIN_NOISE
+
+            // Smooth Normal Mode
+            #pragma shader_feature USE_MODEL_NORMAL
+            #pragma shader_feature UES_UV_PROJECTION_SMOOTH_NORMAL
+            #pragma shader_feature UES_OCTAHEDRAL_SMOOTH_NORMAL
+            
             #pragma shader_feature _ENABLE_ALPHA_TEST_ON
             #pragma shader_feature _OLWVWD_ON
 
-            float _OutlineWidth;
-            float4 _OutlineColor;
 
-            // -------------- Base Functions --------------
-            float3 TransformTangentToWorldNormal(float3 normalTS, float3 tangentWS, float3 bitangentWS, float3 normalWS)
-            {
-                return normalize(TransformTangentToWorld(normalTS,real3x3(tangentWS, bitangentWS, normalWS)));
-            }
 
-            float3 DecodeSmoothNormal(float2 uv, float3 tangentWS, float3 bitangentWS, float3 normalWS)
-            {
-                // 从smoothNormalUV反推TBN空间的(x, y, z)分量
-                float3 tbnNormal; // TBN空间中的法线向量
-
-                // 反向实现unitVectorTo0ct函数逻辑
-                float u = uv.x;
-                float v = uv.y;
-                float x, y, z;
-
-                // 判断是正面（z>0）还是背面（z≤0）
-                // 编码时z≤0的UV有特殊处理，可通过uv范围或计算特征判断
-                bool isBackFace = (abs(u) + abs(v) > 1.001f); // 正面uv的|u|+|v|≤1，背面会略大于1
-
-                if (!isBackFace)
-                {
-                    // 正面：还原x = u*d, y = v*d，其中d = |x| + |y| + |z|
-                    // 推导：d = sqrt(1/(u² + v² + 1))（基于单位向量x²+y²+z²=1）
-                    float d = 1.0f / sqrt(u * u + v * v + 1.0f);
-                    x = u * d;
-                    y = v * d;
-                    z = d; // 正面z为正
-                }
-                else
-                {
-                    // 背面：还原编码时的调整逻辑
-                    float signX = u >= 0 ? 1.0f : -1.0f;
-                    float signY = v >= 0 ? 1.0f : -1.0f;
-
-                    // 反推原始o.x和o.y（编码前的中间值）
-                    float ox = signX * (1.0f - abs(v));
-                    float oy = signY * (1.0f - abs(u));
-
-                    // 计算d和z（背面z为负）
-                    float d = 1.0f / sqrt(ox * ox + oy * oy + 1.0f);
-                    x = ox * d;
-                    y = oy * d;
-                    z = -d; // 背面z为负
-                }
-
-                // 得到TBN空间的法线向量
-                float3 normalTS = float3(x, y, z);
-
-                return TransformTangentToWorldNormal(normalTS, tangentWS, bitangentWS, normalWS);
-            }
-            
-            float3 DecodeOctahedralSmoothNormalUV(float2 uv, float3 tangentWS, float3 bitangentWS, float3 normalWS)
-            {
-                // 1. UV范围转换：[0,1] → [-1,1]（逆编码时的UV映射）
-                float2 octCoord = uv * 2.0 - 1.0; // octCoord: 八面体坐标（x,y ∈ [-1,1]）
-
-                // 2. 计算八面体坐标的L1范数（|x| + |y|），用于判断半球
-                float absOctX = abs(octCoord.x);
-                float absOctY = abs(octCoord.y);
-                float l1Norm = absOctX + absOctY;
-
-                // 3. 八面体解码：还原切线空间3D法线（tangentNormal ∈ 切线空间，单位向量）
-                float3 normalTS;
-                const float epsilon = 1e-6; // 避免浮点精度问题
-                if (l1Norm <= 1.0 + epsilon)
-                {
-                    // 正半球（n_z ≥ 0）：直接反推z分量
-                    normalTS.x = octCoord.x;
-                    normalTS.y = octCoord.y;
-                    normalTS.z = 1.0 - l1Norm; // z = 1 - (|x| + |y|)
-                }
-                else
-                {
-                    // 负半球（n_z < 0）：逆折叠操作，先取符号再计算x/y
-                    float signX = octCoord.x > epsilon ? 1.0 : (octCoord.x < -epsilon ? -1.0 : 0.0);
-                    float signY = octCoord.y > epsilon ? 1.0 : (octCoord.y < -epsilon ? -1.0 : 0.0);
-
-                    normalTS.x = signX * (1.0 - absOctY);
-                    normalTS.y = signY * (1.0 - absOctX);
-                    normalTS.z = l1Norm - 1.0; // z = (|x| + |y|) - 1
-                }
-                // 归一化：确保切线空间法线是单位向量（抵消解码误差）
-                normalTS = normalize(normalTS);
-                
-                return TransformTangentToWorldNormal(normalTS, tangentWS, bitangentWS, normalWS);
-            }
-
-            
-            //---------------- Structs ---------------------
-            struct VertexData
-            {
-                float4 positionOS : POSITION;
-                float2 texcoord : TEXCOORD0;
-                float2 smoothNormalTexcoord : TEXCOORD2;
-                float4 normalOS : NORMAL;
-                float4 tangentOS : TANGENT;
-                float4 color : COLOR;
-            };
-
-            struct v2f
-            {
-                float4 positionCS : SV_POSITION;
-                float2 uv : TEXCOORD0;
-            };
-            ENDHLSL
-
-            
-            HLSLPROGRAM
-            
-            #pragma shader_feature USE_OUTLINE
-            
-            #ifdef USE_OUTLINE
+            // -------- Shader ----------
             #pragma vertex OutlineVert
             #pragma fragment OutlineFrag
 
-            // ---------------- Uniform Variable ---------------------
-            float _OutlineZOffset;
-            TEXTURE2D(_AlbedoMap);       SAMPLER(sampler_AlbedoMap);
-            
-
-            // ---------------- Shader Stage ---------------------
-            v2f OutlineVert(VertexData input)
-            {
-                v2f output;
-
-                output.uv = input.texcoord;
-                
-                VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
-                VertexNormalInputs normalInputs = GetVertexNormalInputs(input.normalOS.xyz, input.tangentOS);
-                
-                float3 normalWS = DecodeOctahedralSmoothNormalUV(input.smoothNormalTexcoord, normalInputs.tangentWS, normalInputs.bitangentWS, normalInputs.normalWS).rgb;
-                
-                // 求得 X 因屏幕比例缩放的倍数
-                float4 scaledScreenParams = GetScaledScreenParams();
-                float ScaleX = abs(scaledScreenParams.y / scaledScreenParams.x); 
-
-                float3 normalCS = TransformWorldToHClipDir(normalWS); //法线转换到裁剪空间
-                float3 extendDir = normalize(normalCS.xyz) * (_OutlineWidth * 0.01) * input.color.a; //根据法线和线宽计算偏移量
-                extendDir.x *= ScaleX; //由于屏幕比例可能不是1:1，所以偏移量会被拉伸显示，根据屏幕比例把x进行修正
-                
-                float4 offsetPosCS = vertexInput.positionCS;
-                offsetPosCS.z += -_OutlineZOffset;// Z 偏移
-                output.positionCS = offsetPosCS;
-                
-                // 屏幕下描边宽度不变，则需要顶点偏移的距离在NDC坐标下为固定值
-                // 因为后续会转换成NDC坐标，会除w进行缩放，所以先乘一个w，那么该偏移的距离就不会在NDC下有变换
-                float ctrl = clamp(1 / output.positionCS.w,0,1);
-                output.positionCS.xy += extendDir.xy * output.positionCS.w * ctrl;
-                
-                // output.positionCS.xy += extendDis * output.positionCS.w;
-                
-                return output;
-            }
-
-            float4 OutlineFrag(v2f input) : SV_Target
-            {
-                float2 uv = input.uv;
-                
-                float3 baseColor = SAMPLE_TEXTURE2D(_AlbedoMap, sampler_AlbedoMap, uv).rgb;
-                half maxComponent = max(max(baseColor.r, baseColor.g), baseColor.b) - 0.004;
-                half3 saturatedColor = step(maxComponent.rrr, baseColor) * baseColor;
-                saturatedColor = lerp(baseColor.rgb, saturatedColor, 0.4);
-                half3 outlineColor = 0.8 * saturatedColor * baseColor * _OutlineColor.xyz;
-                
-                return float4(outlineColor, 1.0);
-            }
-
-            #else
-            
-            v2f OutlineVert(VertexData input)
-            {
-                v2f output;
-                float4 posCS = TransformObjectToHClip(input.positionOS);
-                output.positionCS = posCS;
-                output.uv = input.texcoord;
-                
-                return output;
-            }
-            
-            float4 OutlineFrag(v2f input) : SV_Target
-            {
-                return float4(0, 0, 0, 1.0);
-            }
-            
-            #endif
 
             
-            
+            // --------- Shader Stages -----------
+            #include "Assets/Render/Shaders/ZZZOutlinePasss.hlsl"
+
+
+                
             ENDHLSL
         }
 
@@ -684,35 +344,31 @@ Shader "CelShaders/ZZZShader"
                 "LightMode" = "DepthNormalsOnly"
             }
 
-            // -------------------------------------
-            // Render State Commands
+            // ------- Render State Commands --------
             ZWrite On
 
             HLSLPROGRAM
             #pragma target 2.0
 
-            // -------------------------------------
-            // Shader Stages
+            // ---------- Shader Stages--------------
             #pragma vertex DepthNormalsVertex
             #pragma fragment DepthNormalsFragment
 
-            // -------------------------------------
-            // Material Keywords
+            // --------- Material Keywords------------
             #pragma shader_feature_local _ALPHATEST_ON
 
-            // -------------------------------------
-            // Universal Pipeline keywords
+            // ---- Universal Pipeline keywords -------
+            // 
             #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT // forward-only variant
             #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
 
-            //--------------------------------------
-            // GPU Instancing
+            //----------- GPU Instancing --------------
+            // 
             #pragma multi_compile_instancing
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
 
-            // -------------------------------------
-            // Includes
+            // --------------- Includes --------------
             #include "Packages/com.unity.render-pipelines.universal/Shaders/UnlitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/UnlitDepthNormalsPass.hlsl"
             ENDHLSL

@@ -1,4 +1,12 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+// for debug
+#if defined(DEBUG_MODE)
+
+float4 _NoiseTillOffset;
+
+#endif
+
+
 
 // Texture
 TEXTURE2D(_AlbedoMap);      SAMPLER(sampler_AlbedoMap);
@@ -54,3 +62,6 @@ float _Metallic;
 float _Smoothness;
 
 
+
+// Render State Settings
+float _Cutoff;

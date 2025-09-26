@@ -12,11 +12,19 @@ Material:
   m_Parent: {fileID: 2100000, guid: 9d6e650eaae570f46acc02d569326b91, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - DEBUG_MODE
   - IS_FACE
+  - UES_OCTAHEDRAL_SMOOTH_NORMAL
+  - USE_OUTLINE
+  - USE_PERLIN_NOISE
   - USE_RAMP_ATTENUATION
   m_InvalidKeywords:
+  - USE_OUTLINE_TEST
   - USE_SIGMOID
+  - _DEBUG_MODE
   - _ISFACE_ON
+  - _USEOUTLINE_ON
+  - _USEOUT_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -28,6 +36,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _AlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _RampTex:
         m_Texture: {fileID: 2800000, guid: 1404da316e645634392933e9d43fe49c, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -35,15 +47,19 @@ Material:
     m_Ints: []
     m_Floats:
     - _AttenuationMode: 1
+    - _DebugMode: 1
     - _DiffuseOffset: 0.27
     - _IsBody: 1
     - _IsFace: 1
+    - _LightMapMode: 1
     - _RampAttenuationOffset: -0.21
     - _SigmoidAttenuationOffset: 0.286
     - _SigmoidAttenuationSmoothness: 2.08
     - _SigmoidAttenuationStrength: 1.06
+    - _UseOutline: 1
     - _UseRampShadow: 0
     - _UseSigmoidShadow: 1
     m_Colors:
+    - _MainTint: {r: 1, g: 1, b: 1, a: 1}
     - _SigmoidAttenuationColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

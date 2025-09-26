@@ -12,11 +12,16 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - DYNAMICLIGHTMAP_ON
   - IS_FACE
+  - UES_OCTAHEDRAL_SMOOTH_NORMAL
   - USE_OUTLINE
-  - USE_SIGMOID_ATTENUATION
+  - USE_PERLIN_NOISE
+  - USE_RAMP_ATTENUATION
   m_InvalidKeywords:
+  - USE_OUTLINE_TEST
   - _ISFACE_ON
+  - _USEOUTLINE_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -24,8 +29,10 @@ Material:
   stringTagMap:
     RenderType: Opaque
   disabledShaderPasses: []
-  m_LockedProperties: _AlbedoSmoothness _OutlineWidth _OutlineZOffset _PostFrontTint
-    _PostSSSTint _PostShadowFadeTint _PostShadowTint _PostShallowFadeTint _PostShallowTint
+  m_LockedProperties: :m_LightmapFlags :m_EnableInstancingVariants :m_DoubleSidedGI
+    _AlbedoSmoothness _NoiseAmplify _NoiseTillOffset _OutlineWidth _OutlineZOffset
+    _PerlinNoise _PostFrontTint _PostSSSTint _PostShadowFadeTint _PostShadowTint
+    _PostShallowFadeTint _PostShallowTint
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -63,10 +70,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - LightMapSettings: 1
+    - _AlbedoSettings: 1
     - _AlbedoSmoothness: 0.183
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _AttenuationMode: 0
+    - _AttenuationMode: 1
     - _Blend: 0
     - _BlendOp: 0
     - _BumpScale: 1
@@ -75,19 +84,28 @@ Material:
     - _DebugMode: 0
     - _DiffuseOffset: 0
     - _Domain: 0
+    - _DomainSettings: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _IsBody: 0
     - _IsFace: 1
     - _IsHair: 0
     - _IsRampShadow: 0
+    - _LightMapMode: 0
+    - _LinearSettings: 1
+    - _MTexSettings: 1
     - _Metallic: 1
-    - _OutlineWidth: 0.5
+    - _NoiseAmplify: -1.25
+    - _NormalTexSettings: 1
+    - _OutlineWidth: 0.15
     - _OutlineZOffset: 0.00025
+    - _PassSettings: 1
+    - _PerlinNoise: 0
     - _QueueOffset: 0
     - _RampAttenuationOffset: 0
     - _RampAttenuationSmoothness: 1
     - _RampAttenuationStrength: 1
+    - _RampSettings: 1
     - _SampleGI: 0
     - _ShadowOffset: 0.5
     - _ShadowSmoothness: 2.5
@@ -95,19 +113,24 @@ Material:
     - _SigmoidAttenuationOffset: 0.5
     - _SigmoidAttenuationSmoothness: 2.49
     - _SigmoidAttenuationStrength: 0.71
+    - _SigmoidSettings: 1
+    - _SmoothNormalMode: 2
     - _Smoothness: 1
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
+    - _Textures: 1
     - _UseOutline: 1
     - _UseRampShadow: 0
     - _UseSigmoidShadow: 0
     - _ZWrite: 1
+    - _group: 0
     m_Colors:
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
     - _ForwardColor: {r: 1, g: 1, b: 1, a: 1}
     - _FrontColor: {r: 1, g: 0.8, b: 0.8, a: 1}
     - _MainTint: {r: 1, g: 1, b: 1, a: 1}
+    - _NoiseTillOffset: {r: 100, g: 100, b: 1, a: 1}
     - _OutlineColor: {r: 0.72327036, g: 0.72327036, b: 0.72327036, a: 1}
     - _PostFrontTint: {r: 1, g: 1, b: 1, a: 1}
     - _PostSSSTint: {r: 1, g: 0.879623, b: 0.799103, a: 1}
