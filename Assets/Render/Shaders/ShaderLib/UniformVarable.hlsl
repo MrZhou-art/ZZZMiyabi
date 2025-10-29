@@ -57,11 +57,14 @@ float4 _PostFrontTint;
 // Normal 
 float _BumpScale;
 
-// PBR Properties
+// M Texture Data (PBR Properties)
 float _Metallic;
 float _Smoothness;
+float _Specular;
 
-
+float _MetallicIntensity;
+float _SmoothnessIntensity;
+float _SpecularIntensity;
 
 // Render State Settings
 float _Cutoff;

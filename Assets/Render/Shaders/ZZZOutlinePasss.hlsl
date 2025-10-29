@@ -260,6 +260,21 @@ float4 OutlineFrag(v2f input) : SV_Target
     return float4(outlineColor, 1.0);
 }
 
+half4 ShadowPassFragment(v2f input) : SV_TARGET
+{
+    UNITY_SETUP_INSTANCE_ID(input);
+
+    #if defined(_ALPHATEST_ON)
+    Alpha(SampleAlbedoAlpha(input.uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a, _BaseColor, _Cutoff);
+    #endif
+
+    #if defined(LOD_FADE_CROSSFADE)
+    LODFadeCrossFade(input.positionCS);
+    #endif
+
+    return 0;
+}
+
 #else
 
 v2f OutlineVert(VertexData input)

@@ -160,11 +160,33 @@ float4 ZZZFrag(Varyings input) : SV_Target
     float diffuseBias = normalTexData.diffuseBias;
     float3 normalWS = normalTexData.normalWS;
 
+    /* M Texture Data
+    R: 区域 ID
+       金属,裙子和鞋 : 0
+       皮肤        : 0.3 
+       丝袜        : 0.5 
+       外衣        : 0.7 
+       内衣 : 1
+    G: 金属度
+    B: 身体的光滑度, 头发的高光遮罩
+    A: 高光度, 头发区域
+    */
+#if defined(USE_M_TEXTURE)
+    
     float materialID = mTexData.materialID;
-    float metallic = lerp(0, mTexData.metallic, _Metallic);
-    float smoothness = lerp(0, mTexData.smoothness, _Smoothness);
-    float specular = mTexData.specular;
+    float specular = lerp(0, mTexData.specular, _SpecularIntensity);
+    float metallic = lerp(0, mTexData.metallic, _MetallicIntensity);
+    float smoothness = lerp(0, mTexData.smoothness, _SmoothnessIntensity);
 
+#else    
+    
+    float materialID = 0;
+    float specular = _Specular;
+    float metallic = _Metallic;
+    float smoothness = _Smoothness;
+    
+#endif
+    
     float NoL = dot(normalWS, lightDirWS);
     float NoV = dot(normalWS, viewDirWS);
     float NoH = dot(normalWS, halfDirWS);
@@ -174,7 +196,7 @@ float4 ZZZFrag(Varyings input) : SV_Target
     //                             Cel Shading                                   //
     ///////////////////////////////////////////////////////////////////////////////
 
-    // Albedo
+    // ---------------- Albedo ---------------- 
     float3 albedoColor = 0;
 
 
@@ -233,7 +255,7 @@ float4 ZZZFrag(Varyings input) : SV_Target
 #endif
 
 
-    // PBR
+    // ---------------- PBR ---------------- 
     NPRSurfaceData surfaceData;
     ZZZInitializeSurfaceData(albedo, specular, metallic, smoothness, _Cutoff, surfaceData);
 
@@ -255,7 +277,8 @@ float4 ZZZFrag(Varyings input) : SV_Target
     // TODO: dynamicLightmapUV
 #if defined(DYNAMICLIGHTMAP_ON)
     
-    bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV, input.vertexSH, normalWS);
+    // bakedGI = SAMPLE_GI(input.staticLightmapUV, input.dynamicLightmapUV, input.vertexSH, normalWS);
+    bakedGI = SAMPLE_GI(input.staticLightmapUV, float2(0,0), input.vertexSH, normalWS);
     
 #else
     
@@ -274,10 +297,10 @@ float4 ZZZFrag(Varyings input) : SV_Target
     noiseSampleUV = noiseSampleUV * _NoiseTillOffset.xy + _NoiseTillOffset.zw;
     float perlinNoise = perlin_noise(noiseSampleUV);
     
-    // float3 f0 = lerp(0.04, albedo.rgb, metallic);
-    // float3 directBRDTest = DirectPBR(clamp(NoL, 0, 1), NoV, NoH, HoV, albedo, metallic, 1 - smoothness, f0, lightColor);
-    
-    return half4(perlinNoise.xxx, 1);
+    float3 f0 = lerp(0.04, albedo.rgb, metallic);
+    float3 directBRDTest = DirectPBR(clamp(NoL, 0, 1), NoV, NoH, HoV, albedo, metallic, 1 - smoothness, f0, lightColor);
+
+    return half4(bakedGI, 1);
 
 #endif
 

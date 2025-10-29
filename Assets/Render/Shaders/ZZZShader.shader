@@ -91,11 +91,21 @@ Shader "CelShaders/ZZZShader"
         
         // M Texture
         [Title(M Texture Settings)]
-        [Main(MTexGroup, _, off, off)] _MTexSettings ("M Texture Settings", float) = 1
         
+        // M Texture Data Settings
+        [Main(MTexGroup, USE_M_TEXTURE, on, on)] _UseMTexture ("Use M Texture", float) = 1
         [Tex(MTexGroup, Color)] _MTex("M Texture", 2D) = "white" {}
-        [Sub(MTexGroup)] _Metallic("Metallic", Range(0, 3)) = 1.0
-        [Sub(MTexGroup)] _Smoothness("Smoothness", Range(0, 2)) = 1.0
+        [Sub(MTexGroup)] _MetallicIntensity("Metallic Intensity", Range(0, 2)) = 1
+        [Sub(MTexGroup)] _SmoothnessIntensity("Smoothness Intensity", Range(0, 2)) = 1
+        [Sub(MTexGroup)] _SpecularIntensity("Specular Intensity", Range(0, 2)) = 1
+        // If not use M Texture 
+        [Main(NoMTexGroup, _, off, off)] _MTexSettings ("M Texture Data Settings(If not use M Texture)", float) = 1
+        [Sub(NoMTexGroup)] _Metallic("Metallic", Range(0, 1)) = 0.5
+        [Sub(NoMTexGroup)] _Smoothness("Smoothness", Range(0, 1)) = 0.5
+        [Sub(NoMTexGroup)] _Specular("Specular", Range(0, 1)) = 0.5
+        
+        
+        
         
         // LightMap
         [Title(LightMap Settings)]
@@ -168,6 +178,8 @@ Shader "CelShaders/ZZZShader"
             // -------------- 宏开关 ---------------
             #pragma shader_feature DEBUG_MODE
 
+            #pragma shader_feature USE_M_TEXTURE
+
             // TODO: PBR 工作流
             #pragma shader_feature _SPECULAR_SETUP
             #pragma shader_feature DYNAMICLIGHTMAP_ON
@@ -236,6 +248,8 @@ Shader "CelShaders/ZZZShader"
 
             // -------- Shader ----------
             #pragma vertex OutlineVert
+            // for debug
+            // #pragma fragment ShadowPassFragment
             #pragma fragment OutlineFrag
 
 
@@ -247,6 +261,58 @@ Shader "CelShaders/ZZZShader"
                 
             ENDHLSL
         }
+
+        // Shadow
+        Pass
+        {
+            Name "ShadowCaster"
+            Tags
+            {
+                "LightMode" = "ShadowCaster"
+            }
+
+            // -------------------------------------
+            // Render State Commands
+            ZWrite On
+            ZTest LEqual
+            ColorMask 0
+            Cull[_Cull]
+
+            HLSLPROGRAM
+            #pragma target 2.0
+
+            // -------------------------------------
+            // Shader Stages
+            #pragma vertex ShadowPassVertex
+            #pragma fragment ShadowPassFragment
+
+            // -------------------------------------
+            // Material Keywords
+            #pragma shader_feature_local _ALPHATEST_ON
+            #pragma shader_feature_local_fragment _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+
+            //--------------------------------------
+            // GPU Instancing
+            #pragma multi_compile_instancing
+            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+
+            // -------------------------------------
+            // Universal Pipeline keywords
+
+            // -------------------------------------
+            // Unity defined keywords
+            #pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+
+            // This is used during shadow map generation to differentiate between directional and punctual light shadows, as they use different formulas to apply Normal Bias
+            #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
+
+            // -------------------------------------
+            // Includes
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
+            ENDHLSL
+        }
+
 
         // Fill GBuffer data to prevent "holes", just in case someone wants to reuse GBuffer for non-lighting effects.
         // Deferred lighting is stenciled out.
