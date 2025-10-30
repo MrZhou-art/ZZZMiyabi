@@ -68,3 +68,7 @@ float _SpecularIntensity;
 
 // Render State Settings
 float _Cutoff;
+
+// Head Vectors
+float3 _HeadForward;
+float3 _HeadLeft;

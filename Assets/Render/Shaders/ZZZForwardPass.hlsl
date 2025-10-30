@@ -300,8 +300,10 @@ float4 ZZZFrag(Varyings input) : SV_Target
     float3 f0 = lerp(0.04, albedo.rgb, metallic);
     float3 directBRDTest = DirectPBR(clamp(NoL, 0, 1), NoV, NoH, HoV, albedo, metallic, 1 - smoothness, f0, lightColor);
 
-    return half4(bakedGI, 1);
+    // return half4(bakedGI, 1);
 
+    return half4(_HeadForward, 1.0);
+    
 #endif
 
     return float4(albedoColor, 1.0);
