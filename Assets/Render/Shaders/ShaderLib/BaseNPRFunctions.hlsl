@@ -150,3 +150,58 @@ float3 CalculateAlbedo(
 
     return mainShadow + mainFront;
 }
+
+
+float Calculate360SDFThreshold(
+    Texture2D _360SDFTex,
+    SamplerState sampler_360SDFTex,
+    float2 uv,
+    float3 lightDirWS,
+    float3 headForwardDirWS,
+    float3 headLeftDirWS,
+    float3 headUpDirWS)
+{
+#define ROW 9
+#define ROW_MINUS_ONE 8
+    
+    float cosTheta = dot(lightDirWS.xz, headForwardDirWS.xz);
+    float cosPhi = dot(lightDirWS.xy, headUpDirWS.xy);
+    float isRightSide = step(0.0, dot(lightDirWS.xz, headLeftDirWS.xz));
+
+    float2 cosAngle = float2(cosTheta, cosPhi);
+    float2 linearAngle = 1 - acos(cosAngle) * 57.295799 / 180;
+    linearAngle *= ROW_MINUS_ONE;
+    
+    // Decode SDF Texture
+    float2 uv_inverseX = float2(1.0 - uv.x, uv.y);
+    float2 sdfTexUV = lerp(uv, uv_inverseX, isRightSide) / ROW;
+
+    float ThetaWeight   = frac(linearAngle.x);
+    float PhiWeight     = frac(linearAngle.y);
+    float2 linearAngle_0 = floor(linearAngle);
+    float2 linearAngle_1 = floor(linearAngle) + 1;
+
+    float2 bais0_0 = min(float2(linearAngle_0.x, linearAngle_0.y), 8.0) / ROW;
+    float2 bais1_0 = min(float2(linearAngle_1.x, linearAngle_0.y), 8.0) / ROW;
+    float2 bais0_1 = min(float2(linearAngle_0.x, linearAngle_1.y), 8.0) / ROW;
+    float2 bais1_1 = min(float2(linearAngle_1.x, linearAngle_1.y), 8.0) / ROW;
+
+    float2 sdfTexUV0_0 = sdfTexUV + bais0_0;
+    float2 sdfTexUV1_0 = sdfTexUV + bais1_0;
+    float2 sdfTexUV0_1 = sdfTexUV + bais0_1;
+    float2 sdfTexUV1_1 = sdfTexUV + bais1_1;
+
+    float4 SDF = float4(
+        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV0_0),
+        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV1_0),
+        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV0_1),
+        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV1_1)
+    );
+
+    float2 lerpSDF = float2(
+        lerp(SDF.x, SDF.y, ThetaWeight),
+        lerp(SDF.z, SDF.w, ThetaWeight)
+    );
+
+    return step(lerp(lerpSDF.x, lerpSDF.y, PhiWeight), 0.5);
+}

@@ -114,7 +114,6 @@ float4 ZZZFrag(Varyings input) : SV_Target
     float3 headForwardDirWS = _HeadForward;
     float3 headLeftDirWS = _HeadLeft;
     float3 headUpDirWS = normalize(cross(headLeftDirWS, headForwardDirWS));
-
     
     // ------ Texture Data ------
     // Albedo Texture
@@ -292,52 +291,18 @@ float4 ZZZFrag(Varyings input) : SV_Target
     // ---------------- 360 SDF ----------------
     float3 faceColor = 0;
 #if defined(IS_FACE)
-#define ROW 9
-#define ROW_MINUS_ONE 8
-    float cosTheta = dot(lightDirWS.xz, headForwardDirWS.xz);
-    float cosPhi = dot(lightDirWS.xy, headUpDirWS.xy);
-    float isRightSide = step(0.0, dot(lightDirWS.xz, headLeftDirWS.xz));
 
-    float2 cosAngle = float2(cosTheta, cosPhi);
-    float2 linearAngle = 1 - acos(cosAngle) * 57.295799 / 180;
-    linearAngle *= ROW_MINUS_ONE;
-    
-    // Decode SDF Texture
-    // float sdfTex = DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, input.uv2);
-    float2 uv_inverseX = float2(1.0 - uv.x, uv.y);
-    float2 sdfTexUV = lerp(input.uv2, uv_inverseX, isRightSide) / ROW;
-
-    float ThetaWeight   = frac(linearAngle.x);
-    float PhiWeight     = frac(linearAngle.y);
-    float2 linearAngle_0 = floor(linearAngle);
-    float2 linearAngle_1 = floor(linearAngle) + 1;
-
-    float2 bais0_0 = min(float2(linearAngle_0.x, linearAngle_0.y), 8.0) / ROW;
-    float2 bais1_0 = min(float2(linearAngle_1.x, linearAngle_0.y), 8.0) / ROW;
-    float2 bais0_1 = min(float2(linearAngle_0.x, linearAngle_1.y), 8.0) / ROW;
-    float2 bais1_1 = min(float2(linearAngle_1.x, linearAngle_1.y), 8.0) / ROW;
-
-    float2 sdfTexUV0_0 = sdfTexUV + bais0_0;
-    float2 sdfTexUV1_0 = sdfTexUV + bais1_0;
-    float2 sdfTexUV0_1 = sdfTexUV + bais0_1;
-    float2 sdfTexUV1_1 = sdfTexUV + bais1_1;
-
-    float4 SDF = float4(
-        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV0_0),
-        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV1_0),
-        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV0_1),
-        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV1_1)
-    );
-
-    float2 lerpSDF = float2(
-        lerp(SDF.x, SDF.y, ThetaWeight),
-        lerp(SDF.z, SDF.w, ThetaWeight)
-    );
-
-    float SDFThreshold = step(lerp(lerpSDF.x, lerpSDF.y, PhiWeight), 0.5);
+    float SDFThreshold = Calculate360SDFThreshold(
+        _360SDFTex,
+        sampler_360SDFTex,
+        input.uv2,
+        lightDirWS,
+        headForwardDirWS,
+        headLeftDirWS,
+        headUpDirWS);
 
     faceColor = lerp(_SDFShadowColor, _SDFBrightColor, SDFThreshold) * albedo;
-
+    
 #endif
     
     // ---------------- Final Stage ---------------- 
