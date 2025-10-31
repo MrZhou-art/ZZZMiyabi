@@ -57,6 +57,11 @@ MTexData DecodeMTexture(Texture2D mTex, SamplerState mTexSampler, float2 uv)
 }
 
 
+float DecodeSDFTexture(Texture2D sdfTex, SamplerState sdfTexSampler, float2 uv)
+{
+    return SAMPLE_TEXTURE2D(sdfTex, sdfTexSampler, uv).x;
+}
+
 
 float CalculateAlbedoRampPart1(float baseAttenuation, float albedoSoomthness, float adder1, float adder2)
 {

@@ -13,6 +13,7 @@ TEXTURE2D(_AlbedoMap);      SAMPLER(sampler_AlbedoMap);
 TEXTURE2D(_NormalTex);      SAMPLER(sampler_NormalTex);
 TEXTURE2D(_MTex);           SAMPLER(sampler_MTex);
 TEXTURE2D(_RampTex);        SAMPLER(sampler_RampTex);
+TEXTURE2D(_360SDFTex);      SAMPLER(sampler_360SDFTex);
 
 // Switch
 int _Domain;
@@ -69,6 +70,9 @@ float _SpecularIntensity;
 // Render State Settings
 float _Cutoff;
 
+// SDF Settings
+float4 _SDFBrightColor;
+float4 _SDFShadowColor;
 // Head Vectors
 float3 _HeadForward;
 float3 _HeadLeft;

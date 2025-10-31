@@ -40,11 +40,8 @@ struct Attributes
     float4 positionOS : POSITION;
     float2 uv : TEXCOORD0;
     
-#if defined(DEBUG_MODE)
-    
-    float2 uv1 : TEXCOORD1; // for debug
-    float4 color : COLOR; // for debug
-    
+#if defined(IS_FACE)
+    float2 uv2 : TEXCOORD2;
 #endif
     
     float3 normalOS : NORMAL;
@@ -55,18 +52,15 @@ struct Varyings
 {
     float4 positionCS : SV_POSITION;
     float3 positionWS : TEXCOORD0;
-    float2 uv : TEXCOORD1;
-
-#if defined(DEBUG_MODE)
+    float2 uv   : TEXCOORD1;
     
-    float2 uv1 : TEXCOORD7; // for debug
-    float4 color : TEXCOORD5; // for debug
-    
+#if defined(IS_FACE)
+    float2 uv2  : TEXCOORD2;
 #endif
     
-    float3 normalWS : TEXCOORD2;
-    float3 tangentWS : TEXCOORD3;
-    float3 bitangentWS : TEXCOORD4;
+    float3 normalWS     : TEXCOORD3;
+    float3 tangentWS    : TEXCOORD4;
+    float3 bitangentWS  : TEXCOORD5;
 
     DECLARE_LIGHTMAP_OR_SH(staticLightmapUV, vertexSH, 8);
 #ifdef DYNAMICLIGHTMAP_ON
@@ -84,14 +78,12 @@ Varyings ZZZVert(Attributes input)
 {
     Varyings output;
 
-    output.uv = input.uv;
-#if defined(DEBUG_MODE)
-
-    output.uv1 = input.uv1; // for debug
-    output.color = input.color; // for debug
+    output.uv   = input.uv;
     
+#if defined(IS_FACE)
+    output.uv2  = input.uv2;
 #endif
-
+    
     VertexPositionInputs positionInputs = GetVertexPositionInputs(input.positionOS.xyz);
     output.positionCS = positionInputs.positionCS;
     output.positionWS = positionInputs.positionWS;
@@ -104,7 +96,10 @@ Varyings ZZZVert(Attributes input)
     // TODO: vertexSH
     output.vertexSH = 0;
 
-
+    #ifdef DYNAMICLIGHTMAP_ON
+    output.dynamicLightmapUV = float2(0.0f, 0.0f);
+    #endif
+    
     return output;
 }
 
@@ -116,10 +111,15 @@ float4 ZZZFrag(Varyings input) : SV_Target
     float3 lightDirWS = normalize(mainLight.direction);
     float3 viewDirWS = normalize(_WorldSpaceCameraPos - input.positionWS);
     float3 halfDirWS = normalize(lightDirWS + viewDirWS);
+    float3 headForwardDirWS = _HeadForward;
+    float3 headLeftDirWS = _HeadLeft;
+    float3 headUpDirWS = normalize(cross(headLeftDirWS, headForwardDirWS));
 
+    
     // ------ Texture Data ------
     // Albedo Texture
     float4 albedo = DecodeAlbedoTexture(_AlbedoMap, sampler_AlbedoMap, input.uv);
+    
 
 #ifdef IS_FACE
     
@@ -151,7 +151,6 @@ float4 ZZZFrag(Varyings input) : SV_Target
     
 #if defined(DEBUG_MODE)
     
-    float2 uv1 = input.uv1; // for debug
     
 #endif
     
@@ -288,7 +287,60 @@ float4 ZZZFrag(Varyings input) : SV_Target
 #endif
     
     half3 GlobalIllumination = ZZZGlobalIllumination(brdfData, bakedGI, normalWS, viewDirWS);
+
     
+    // ---------------- 360 SDF ----------------
+    float3 faceColor = 0;
+#if defined(IS_FACE)
+#define ROW 9
+#define ROW_MINUS_ONE 8
+    float cosTheta = dot(lightDirWS.xz, headForwardDirWS.xz);
+    float cosPhi = dot(lightDirWS.xy, headUpDirWS.xy);
+    float isRightSide = step(0.0, dot(lightDirWS.xz, headLeftDirWS.xz));
+
+    float2 cosAngle = float2(cosTheta, cosPhi);
+    float2 linearAngle = 1 - acos(cosAngle) * 57.295799 / 180;
+    linearAngle *= ROW_MINUS_ONE;
+    
+    // Decode SDF Texture
+    // float sdfTex = DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, input.uv2);
+    float2 uv_inverseX = float2(1.0 - uv.x, uv.y);
+    float2 sdfTexUV = lerp(input.uv2, uv_inverseX, isRightSide) / ROW;
+
+    float ThetaWeight   = frac(linearAngle.x);
+    float PhiWeight     = frac(linearAngle.y);
+    float2 linearAngle_0 = floor(linearAngle);
+    float2 linearAngle_1 = floor(linearAngle) + 1;
+
+    float2 bais0_0 = min(float2(linearAngle_0.x, linearAngle_0.y), 8.0) / ROW;
+    float2 bais1_0 = min(float2(linearAngle_1.x, linearAngle_0.y), 8.0) / ROW;
+    float2 bais0_1 = min(float2(linearAngle_0.x, linearAngle_1.y), 8.0) / ROW;
+    float2 bais1_1 = min(float2(linearAngle_1.x, linearAngle_1.y), 8.0) / ROW;
+
+    float2 sdfTexUV0_0 = sdfTexUV + bais0_0;
+    float2 sdfTexUV1_0 = sdfTexUV + bais1_0;
+    float2 sdfTexUV0_1 = sdfTexUV + bais0_1;
+    float2 sdfTexUV1_1 = sdfTexUV + bais1_1;
+
+    float4 SDF = float4(
+        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV0_0),
+        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV1_0),
+        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV0_1),
+        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV1_1)
+    );
+
+    float2 lerpSDF = float2(
+        lerp(SDF.x, SDF.y, ThetaWeight),
+        lerp(SDF.z, SDF.w, ThetaWeight)
+    );
+
+    float SDFThreshold = step(lerp(lerpSDF.x, lerpSDF.y, PhiWeight), 0.5);
+
+    faceColor = lerp(_SDFShadowColor, _SDFBrightColor, SDFThreshold) * albedo;
+
+#endif
+    
+    // ---------------- Final Stage ---------------- 
 #ifdef DEBUG_MODE
     
     // float3 smoothNormalWS = DecodeUVProjectionSmoothNormal(uv1, input.tangentWS, input.bitangentWS, input.normalWS);
@@ -298,11 +350,11 @@ float4 ZZZFrag(Varyings input) : SV_Target
     float perlinNoise = perlin_noise(noiseSampleUV);
     
     float3 f0 = lerp(0.04, albedo.rgb, metallic);
-    float3 directBRDTest = DirectPBR(clamp(NoL, 0, 1), NoV, NoH, HoV, albedo, metallic, 1 - smoothness, f0, lightColor);
+    float3 directBRDTest = DirectPBR(clamp(NoL, 0, 1), NoV, NoH, HoV, albedo.rgb, metallic, 1 - smoothness, f0, lightColor);
 
     // return half4(bakedGI, 1);
 
-    return half4(_HeadForward, 1.0);
+    return half4(faceColor, 1.0);
     
 #endif
 

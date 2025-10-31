@@ -93,7 +93,7 @@ half3 ZZZGlobalIllumination(BRDFData brdfData, half3 bakedGI, half3 normalWS, ha
 
 // 未优化的 BRDF 函数
 // Distribution
-float DistributionGGX(float3 NdotH, float roughness)
+float DistributionGGX(float NdotH, float roughness)
 {
     float a = roughness * roughness;
     float a2 = a * a;

@@ -36,6 +36,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _360SDFTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _AlbedoMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -108,6 +112,7 @@ Material:
     - _RampAttenuationSmoothness: 1
     - _RampAttenuationStrength: 1
     - _RampSettings: 1
+    - _SDFTexSettings: 1
     - _SampleGI: 0
     - _ShadowOffset: 0.5
     - _ShadowSmoothness: 2.5
@@ -130,6 +135,7 @@ Material:
     - _UseRampShadow: 0
     - _UseSigmoidShadow: 0
     - _ZWrite: 1
+    - _bias: 0.5
     - _group: 0
     m_Colors:
     - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}

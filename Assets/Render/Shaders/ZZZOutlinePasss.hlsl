@@ -280,7 +280,7 @@ half4 ShadowPassFragment(v2f input) : SV_TARGET
 v2f OutlineVert(VertexData input)
 {
     v2f output;
-    float4 posCS = TransformObjectToHClip(input.positionOS);
+    float4 posCS = TransformObjectToHClip(input.positionOS.xyz);
     output.positionCS = posCS;
     output.uv = input.texcoord;
 

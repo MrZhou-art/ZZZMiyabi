@@ -91,7 +91,6 @@ Shader "CelShaders/ZZZShader"
         
         // M Texture
         [Title(M Texture Settings)]
-        
         // M Texture Data Settings
         [Main(MTexGroup, USE_M_TEXTURE, on, on)] _UseMTexture ("Use M Texture", float) = 1
         [Tex(MTexGroup, Color)] _MTex("M Texture", 2D) = "white" {}
@@ -99,11 +98,20 @@ Shader "CelShaders/ZZZShader"
         [Sub(MTexGroup)] _SmoothnessIntensity("Smoothness Intensity", Range(0, 2)) = 1
         [Sub(MTexGroup)] _SpecularIntensity("Specular Intensity", Range(0, 2)) = 1
         // If not use M Texture 
-        [Main(NoMTexGroup, _, off, off)] _MTexSettings ("M Texture Data Settings(If not use M Texture)", float) = 1
-        [Sub(NoMTexGroup)] _Metallic("Metallic", Range(0, 1)) = 0.5
-        [Sub(NoMTexGroup)] _Smoothness("Smoothness", Range(0, 1)) = 0.5
-        [Sub(NoMTexGroup)] _Specular("Specular", Range(0, 1)) = 0.5
+        [Main(NoneMTexGroup, _, off, off)] _MTexSettings ("M Texture Data Settings(If not use M Texture)", float) = 1
+        [Sub(NoneMTexGroup)] _Metallic("Metallic", Range(0, 1)) = 0.5
+        [Sub(NoneMTexGroup)] _Smoothness("Smoothness", Range(0, 1)) = 0.5
+        [Sub(NoneMTexGroup)] _Specular("Specular", Range(0, 1)) = 0.5
         
+        // SDF
+        [Title(SDF Settings)]
+        // 360 SDF
+        [Main(SDFGroup, _, off, off)] _SDFTexSettings ("360 SDF Texture Data Settings", float) = 1
+        [Tex(SDFGroup, Color)] _360SDFTex("360 SDF Texture", 2D) = "white" {}
+        [Sub(SDFGroup)] _SDFBrightColor("Bright Color", Color) = (1.0, 0.94,0.932, 1)
+        [Sub(SDFGroup)] _SDFShadowColor("Shadow Color", Color) = (0.75, 0.423, 0.359, 1)
+        
+        [Sub(SDFGroup)] _bias("bias", Range(0, 1)) = 0.5
         
         
         
