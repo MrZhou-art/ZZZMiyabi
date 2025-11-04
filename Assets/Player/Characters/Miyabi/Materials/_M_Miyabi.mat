@@ -16,9 +16,11 @@ Material:
   - DYNAMICLIGHTMAP_ON
   - IS_FACE
   - UES_OCTAHEDRAL_SMOOTH_NORMAL
+  - USE_2D_SDF
   - USE_OUTLINE
   - USE_RAMP_ATTENUATION
   m_InvalidKeywords:
+  - USE_3D_SDF
   - USE_OUTLINE_TEST
   - _ISFACE_ON
   - _USEOUTLINE_ON
@@ -112,6 +114,7 @@ Material:
     - _RampAttenuationSmoothness: 1
     - _RampAttenuationStrength: 1
     - _RampSettings: 1
+    - _SDFMode: 0
     - _SDFTexSettings: 1
     - _SampleGI: 0
     - _ShadowOffset: 0.5
@@ -150,6 +153,8 @@ Material:
     - _PostShadowTint: {r: 1, g: 1, b: 1, a: 1}
     - _PostShallowFadeTint: {r: 0.791298, g: 0.791298, b: 0.791298, a: 1}
     - _PostShallowTint: {r: 0.791298, g: 0.791298, b: 0.791298, a: 1}
+    - _SDFBrightColor: {r: 1, g: 0.94, b: 0.932, a: 1}
+    - _SDFShadowColor: {r: 0.75, g: 0.42299998, b: 0.35899997, a: 1}
     - _SSSColor: {r: 1, g: 0.5, b: 0.5, a: 1}
     - _ShadowColor: {r: 0.86666673, g: 0.7490196, b: 0.7490196, a: 1}
     - _ShadowColor1: {r: 0, g: 0, b: 0, a: 1}

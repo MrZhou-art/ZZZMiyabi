@@ -106,11 +106,17 @@ Shader "CelShaders/ZZZShader"
         // SDF
         [Title(SDF Settings)]
         // 360 SDF
-        [Main(SDFGroup, _, off, off)] _SDFTexSettings ("360 SDF Texture Data Settings", float) = 1
+        [Main(SDFGroup, _, off, off)] _SDFTexSettings ("SDF Data Settings", float) = 1
+        [KWEnum(SDFGroup, 2D SDF, USE_2D_SDF, 360 SDF, USE_3D_SDF)]
+        _SDFMode ("SDF Mode", float) = 0
+        
+        [Title(2D SDF Settings)]
+        
+        
+        [Title(360 SDF Settings)]
         [Tex(SDFGroup, Color)] _360SDFTex("360 SDF Texture", 2D) = "white" {}
         [Sub(SDFGroup)] _SDFBrightColor("Bright Color", Color) = (1.0, 0.94,0.932, 1)
         [Sub(SDFGroup)] _SDFShadowColor("Shadow Color", Color) = (0.75, 0.423, 0.359, 1)
-        
         [Sub(SDFGroup)] _bias("bias", Range(0, 1)) = 0.5
         
         
@@ -200,7 +206,7 @@ Shader "CelShaders/ZZZShader"
             #pragma shader_feature USE_RAMP_ATTENUATION
             #pragma shader_feature USE_LINEAR_PARTITIONED_ATTENUATION
 
-            
+            #pragma  shader_feature USE_2D_SDF
             
             // -------- Shader ----------
             #pragma vertex ZZZVert

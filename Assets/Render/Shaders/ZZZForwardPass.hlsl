@@ -287,10 +287,27 @@ float4 ZZZFrag(Varyings input) : SV_Target
     
     half3 GlobalIllumination = ZZZGlobalIllumination(brdfData, bakedGI, normalWS, viewDirWS);
 
-    
-    // ---------------- 360 SDF ----------------
+    // ----------------- SDF -------------------
     float3 faceColor = 0;
 #if defined(IS_FACE)
+    // ---------------- 2D SDF ----------------
+#if defined(USE_2D_SDF)
+
+    // For the world-space light direction, remove its parallel component
+    // along the head up direction to yield a horizontal projection vector perpendicular to the head
+    float3 HorizontalLightDirWS = normalize(lightDirWS - dot(lightDirWS, headUpDirWS) * headUpDirWS);
+
+    // float isRightSide = step(0.0, dot(lightDirWS.xz, headLeftDirWS.xz));
+    float isRightSide = -dot(HorizontalLightDirWS, _HeadLeft);
+    float linearTheta = FastAtan2(isRightSide, dot(headForwardDirWS, HorizontalLightDirWS)) / PI;
+    
+    float2 uv_inverseX = float2(1.0 - uv.x, uv.y);
+    float2 sdfTexUV = lerp(uv, uv_inverseX, isRightSide);
+    
+    faceColor = float3(sdfTexUV, 0.0);
+    
+    // ---------------- 360 SDF ----------------
+#else
 
     float SDFThreshold = Calculate360SDFThreshold(
         _360SDFTex,
@@ -302,6 +319,9 @@ float4 ZZZFrag(Varyings input) : SV_Target
         headUpDirWS);
 
     faceColor = lerp(_SDFShadowColor, _SDFBrightColor, SDFThreshold) * albedo;
+    
+
+#endif
     
 #endif
     
