@@ -40,6 +40,10 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _2DSDFTex:
+        m_Texture: {fileID: 2800000, guid: f60e3fd88c7b3e34faf13c2bf1c827e3, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _360SDFTex:
         m_Texture: {fileID: 2800000, guid: 4849f22b36ee1cc41998ca072463b955, type: 3}
         m_Scale: {x: 1, y: 1}

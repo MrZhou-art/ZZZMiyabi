@@ -111,6 +111,7 @@ Shader "CelShaders/ZZZShader"
         _SDFMode ("SDF Mode", float) = 0
         
         [Title(2D SDF Settings)]
+        [Tex(SDFGroup, Color)] _2DSDFTex("2D SDF Texture", 2D) = "white" {}
         
         
         [Title(360 SDF Settings)]

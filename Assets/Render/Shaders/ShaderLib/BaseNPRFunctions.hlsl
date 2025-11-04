@@ -57,9 +57,14 @@ MTexData DecodeMTexture(Texture2D mTex, SamplerState mTexSampler, float2 uv)
 }
 
 
-float DecodeSDFTexture(Texture2D sdfTex, SamplerState sdfTexSampler, float2 uv)
+float Decode360SDFTexture(Texture2D sdfTex, SamplerState sdfTexSampler, float2 uv)
 {
     return SAMPLE_TEXTURE2D(sdfTex, sdfTexSampler, uv).x;
+}
+
+float4 Decode2DSDFTexture(Texture2D sdfTex, SamplerState sdfTexSampler, float2 uv)
+{
+    return SAMPLE_TEXTURE2D(sdfTex, sdfTexSampler, uv);
 }
 
 
@@ -192,10 +197,10 @@ float Calculate360SDFThreshold(
     float2 sdfTexUV1_1 = sdfTexUV + bais1_1;
 
     float4 SDF = float4(
-        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV0_0),
-        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV1_0),
-        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV0_1),
-        DecodeSDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV1_1)
+        Decode360SDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV0_0),
+        Decode360SDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV1_0),
+        Decode360SDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV0_1),
+        Decode360SDFTexture(_360SDFTex, sampler_360SDFTex, sdfTexUV1_1)
     );
 
     float2 lerpSDF = float2(

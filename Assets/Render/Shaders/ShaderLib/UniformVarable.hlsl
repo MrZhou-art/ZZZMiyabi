@@ -14,6 +14,7 @@ TEXTURE2D(_NormalTex);      SAMPLER(sampler_NormalTex);
 TEXTURE2D(_MTex);           SAMPLER(sampler_MTex);
 TEXTURE2D(_RampTex);        SAMPLER(sampler_RampTex);
 TEXTURE2D(_360SDFTex);      SAMPLER(sampler_360SDFTex);
+TEXTURE2D(_2DSDFTex);       SAMPLER(sampler_2DSDFTex);
 
 // Switch
 int _Domain;
