@@ -194,10 +194,61 @@ float4 ZZZFrag(Varyings input) : SV_Target
     //                             Cel Shading                                   //
     ///////////////////////////////////////////////////////////////////////////////
 
-    // ---------------- Albedo ---------------- 
     float3 albedoColor = 0;
+    float3 faceColor = 0;
 
+    // ----------------- SDF -------------------
+#if defined(IS_FACE)
+    // ---------------- 2D SDF ----------------
+#if defined(USE_2D_SDF)
 
+    // ---------- for debug ---------
+    headForwardDirWS = float3(0.0, 0.0, 1.0); 
+    headLeftDirWS = float3(1.0, 0.0, 0.0); 
+    headUpDirWS = float3(0.0, 1.0, 0.0);
+    
+    // ----------------------------
+    // For the world-space light direction, remove its parallel component
+    // along the head up direction to yield a horizontal projection vector perpendicular to the head
+    float3 HorizontalLightDirWS = normalize(lightDirWS - dot(lightDirWS, headUpDirWS) * headUpDirWS);
+
+    // float isRightSide = step(0.0, dot(lightDirWS.xz, headLeftDirWS.xz));
+    float cosTheta = dot(HorizontalLightDirWS, headLeftDirWS);
+    float isRightSide = step(0.0, cosTheta);
+    float linearTheta = FastAtan2(cosTheta, dot(-headForwardDirWS, HorizontalLightDirWS)) / PI;
+    float angleThreshold = lerp(1 - linearTheta, 1 + linearTheta, step(linearTheta, 0.0));
+    
+    
+    float2 uv_inverseX = float2(1.0 - uv.x, uv.y);
+    float2 sdfTexUV = lerp(uv, uv_inverseX, isRightSide);
+
+    float4 sdf = Decode2DSDFTexture(_2DSDFTex, sampler_2DSDFTex, sdfTexUV);
+    float angleMapping  = sdf.r;
+    float angleFunction = sdf.g;
+    // float angle         = sdf.b; // No useful for now
+    float angleMapMask  = sdf.a;
+    
+    // ---------------- 360 SDF ----------------
+#else
+
+    float SDFThreshold = Calculate360SDFThreshold(
+        _360SDFTex,
+        sampler_360SDFTex,
+        input.uv2,
+        lightDirWS,
+        headForwardDirWS,
+        headLeftDirWS,
+        headUpDirWS);
+
+    faceColor = lerp(_SDFShadowColor, _SDFBrightColor, SDFThreshold) * albedo;
+    
+
+#endif
+    
+#endif
+    
+    
+    // ---------------- Albedo ---------------- 
 #if defined(USE_SIGMOID_ATTENUATION) || defined(USE_RAMP_ATTENUATION)
 
     float halfLambert = clamp(NoL * 0.5 + 0.5, 0, 1);
@@ -227,8 +278,17 @@ float4 ZZZFrag(Varyings input) : SV_Target
 #ifdef USE_LINEAR_PARTITIONED_ATTENUATION
 
     // attenuation
-    AttenuationData attenuation = CalculateAttenuation(_AlbedoSmoothness, NoL, diffuseBias + _DiffuseOffset);
-
+    AttenuationData attenuationData;
+#if defined(IS_FACE)
+    
+    attenuationData = CalculateFaceAttenuation(_AlbedoSmoothness, angleFunction, angleMapping, angleThreshold);
+    
+#else
+    
+    attenuationData = CalculateAttenuation(_AlbedoSmoothness, NoL, diffuseBias + _DiffuseOffset);
+    
+#endif
+    
     // Select Color by MaterialID
     float4 selectedShadowColor = SelectByMaterialID(materialID, _ShadowColor1, _ShadowColor2, _ShadowColor3,
                                                     _ShadowColor4, _ShadowColor5);
@@ -245,7 +305,7 @@ float4 ZZZFrag(Varyings input) : SV_Target
         _PostShallowTint.rgb,
         _PostSSSTint.rgb,
         _PostFrontTint.rgb,
-        attenuation,
+        attenuationData,
         lightColor);
 
     albedoColor = albedoColor * albedo.rgb;
@@ -287,101 +347,6 @@ float4 ZZZFrag(Varyings input) : SV_Target
     
     half3 GlobalIllumination = ZZZGlobalIllumination(brdfData, bakedGI, normalWS, viewDirWS);
 
-    // ----------------- SDF -------------------
-    float3 faceColor = 0;
-#if defined(IS_FACE)
-    // ---------------- 2D SDF ----------------
-#if defined(USE_2D_SDF)
-
-    // ---------- for debug ---------
-    // headForwardDirWS = float3(0.0, 0.0, 1.0); 
-    // headLeftDirWS = float3(1.0, 0.0, 0.0); 
-    // headUpDirWS = float3(0.0, 1.0, 0.0);
-    
-    // ----------------------------
-
-    // For the world-space light direction, remove its parallel component
-    // along the head up direction to yield a horizontal projection vector perpendicular to the head
-    float3 HorizontalLightDirWS = normalize(lightDirWS - dot(lightDirWS, headUpDirWS) * headUpDirWS);
-
-    // float isRightSide = step(0.0, dot(lightDirWS.xz, headLeftDirWS.xz));
-    float cosTheta = dot(HorizontalLightDirWS, headLeftDirWS);
-    float isRightSide = step(0.0, cosTheta);
-    float linearTheta = FastAtan2(cosTheta, dot(-headForwardDirWS, HorizontalLightDirWS)) / PI;
-    float angleThreshold = lerp(1 - linearTheta, 1 + linearTheta, step(linearTheta, 0.0));
-    
-    
-    float2 uv_inverseX = float2(1.0 - uv.x, uv.y);
-    float2 sdfTexUV = lerp(uv, uv_inverseX, isRightSide);
-
-    float4 sdf = Decode2DSDFTexture(_2DSDFTex, sampler_2DSDFTex, sdfTexUV);
-    float angleMapping  = sdf.r;
-    float angleFunction = sdf.g;
-    // float angle         = sdf.b; // No useful for now
-    float angleMapMask  = sdf.a;
-
-    // Don't modify these magic numbers.
-    float angleFunctionRange = saturate(angleFunction * 2.5f - 1.25f);
-    angleFunctionRange = max(lerp(_AlbedoSmoothness, 0.025f, angleFunctionRange), 0.00001f);
-    angleThreshold = (1.2f * angleMapping - 0.6f)/ (4 * angleFunctionRange + 1) + 0.6f - angleThreshold;
-
-    float shadowAttenuation = angleThreshold / angleFunctionRange;
-    float brightnessAttenuation = 8.0f * angleThreshold - 16.0f * angleFunctionRange;
-
-    AttenuationData attenuationData;
-    attenuationData.shadowFade = saturate(1 - shadowAttenuation);
-    attenuationData.shadow = 0.0f;
-    attenuationData.shallowFade = 0.0f;
-    attenuationData.shallow = 0.0f;
-    attenuationData.sss = min(saturate(shadowAttenuation), saturate(1.0f - (shadowAttenuation - 1.0f)));
-    attenuationData.front = min(saturate(shadowAttenuation - 1.0f), saturate(1.0f - brightnessAttenuation));
-    attenuationData.forward = saturate(brightnessAttenuation);
-
-    // TODO: Face Shadow Attenuation
-
-    // Merge This with Albedo
-    // Select Color by MaterialID
-    float4 selectedShadowColor_test = SelectByMaterialID(materialID, _ShadowColor1, _ShadowColor2, _ShadowColor3,
-                                                    _ShadowColor4, _ShadowColor5);
-    float4 selectedShallowColor_test = SelectByMaterialID(materialID, _ShallowColor1, _ShallowColor2, _ShallowColor3,
-                                                     _ShallowColor4, _ShallowColor5);
-
-    // Tinting
-    albedoColor = CalculateAlbedo(
-        selectedShadowColor_test.rgb,
-        selectedShallowColor_test.rgb,
-        _PostShadowFadeTint.rgb,
-        _PostShadowTint.rgb,
-        _PostShallowFadeTint.rgb,
-        _PostShallowTint.rgb,
-        _PostSSSTint.rgb,
-        _PostFrontTint.rgb,
-        attenuationData,
-        lightColor);
-
-    albedoColor = albedoColor * albedo.rgb;
-    
-    faceColor = float3(albedoColor);
-    
-    // ---------------- 360 SDF ----------------
-#else
-
-    float SDFThreshold = Calculate360SDFThreshold(
-        _360SDFTex,
-        sampler_360SDFTex,
-        input.uv2,
-        lightDirWS,
-        headForwardDirWS,
-        headLeftDirWS,
-        headUpDirWS);
-
-    faceColor = lerp(_SDFShadowColor, _SDFBrightColor, SDFThreshold) * albedo;
-    
-
-#endif
-    
-#endif
-    
     // ---------------- Final Stage ---------------- 
 #ifdef DEBUG_MODE
     
@@ -396,7 +361,7 @@ float4 ZZZFrag(Varyings input) : SV_Target
 
     // return half4(bakedGI, 1);
 
-    return half4(faceColor, 1.0);
+    return half4(albedoColor, 1.0);
     
 #endif
 

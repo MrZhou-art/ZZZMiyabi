@@ -125,6 +125,30 @@ AttenuationData CalculateAttenuation(float albedoSmoothness, float NoL, float di
     return attenuationData;
 }
 
+
+AttenuationData CalculateFaceAttenuation(float albedoSmoothness, float angleFunction, float angleMapping, float angleThreshold)
+{
+    // Never tamper with these magic numbers.
+    float angleFunctionRange = saturate(angleFunction * 2.5f - 1.25f);
+    angleFunctionRange = max(lerp(albedoSmoothness, 0.025f, angleFunctionRange), 0.00001f);
+    angleThreshold = (1.2f * angleMapping - 0.6f)/ (4 * angleFunctionRange + 1) + 0.6f - angleThreshold;
+
+    float shadowAttenuation = angleThreshold / angleFunctionRange;
+    float brightnessAttenuation = 8.0f * angleThreshold - 16.0f * angleFunctionRange;
+
+    AttenuationData faceAttenuationData;
+    faceAttenuationData.shadowFade = saturate(1 - shadowAttenuation);
+    faceAttenuationData.shadow = 0.0f;
+    faceAttenuationData.shallowFade = 0.0f;
+    faceAttenuationData.shallow = 0.0f;
+    faceAttenuationData.sss = min(saturate(shadowAttenuation), saturate(1.0f - (shadowAttenuation - 1.0f)));
+    faceAttenuationData.front = min(saturate(shadowAttenuation - 1.0f), saturate(1.0f - brightnessAttenuation));
+    faceAttenuationData.forward = saturate(brightnessAttenuation);
+
+    return faceAttenuationData;
+}
+
+
 float3 CalculateAlbedo(
     float3 ShadowColor,
     float3 ShallowColor,
