@@ -16,9 +16,9 @@ Material:
   - IS_FACE
   - UES_OCTAHEDRAL_SMOOTH_NORMAL
   - USE_2D_SDF
+  - USE_LINEAR_PARTITIONED_ATTENUATION
   - USE_M_TEXTURE
   - USE_OUTLINE
-  - USE_RAMP_ATTENUATION
   m_InvalidKeywords:
   - USE_3D_SDF
   - USE_OUT
@@ -63,7 +63,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlbedoSettings: 1
-    - _AttenuationMode: 1
+    - _AttenuationMode: 2
     - _DebugMode: 1
     - _DiffuseOffset: 1
     - _Domain: 0

@@ -17,8 +17,8 @@ Material:
   - IS_FACE
   - UES_OCTAHEDRAL_SMOOTH_NORMAL
   - USE_2D_SDF
+  - USE_LINEAR_PARTITIONED_ATTENUATION
   - USE_OUTLINE
-  - USE_RAMP_ATTENUATION
   m_InvalidKeywords:
   - USE_3D_SDF
   - USE_OUTLINE_TEST
@@ -32,12 +32,16 @@ Material:
     RenderType: Opaque
   disabledShaderPasses: []
   m_LockedProperties: :m_LightmapFlags :m_EnableInstancingVariants :m_DoubleSidedGI
-    _AlbedoSmoothness _DebugMode _NoiseAmplify _NoiseTillOffset _OutlineWidth _OutlineZOffset
-    _PerlinNoise _PostFrontTint _PostSSSTint _PostShadowFadeTint _PostShadowTint
-    _PostShallowFadeTint _PostShallowTint
+    _AlbedoSmoothness _AttenuationMode _DebugMode _NoiseAmplify _NoiseTillOffset
+    _OutlineWidth _OutlineZOffset _PerlinNoise _PostFrontTint _PostSSSTint _PostShadowFadeTint
+    _PostShadowTint _PostShallowFadeTint _PostShallowTint
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _2DSDFTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _360SDFTex:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -81,7 +85,7 @@ Material:
     - _AlbedoSmoothness: 0.183
     - _AlphaClip: 0
     - _AlphaToMask: 0
-    - _AttenuationMode: 1
+    - _AttenuationMode: 2
     - _Blend: 0
     - _BlendOp: 0
     - _BumpScale: 1
@@ -137,6 +141,7 @@ Material:
     - _UseOutline: 1
     - _UseRampShadow: 0
     - _UseSigmoidShadow: 0
+    - _UseWorldSpaceOrientation: 1
     - _ZWrite: 1
     - _bias: 0.5
     - _group: 0

@@ -12,10 +12,12 @@ Material:
   m_Parent: {fileID: 2100000, guid: 9d6e650eaae570f46acc02d569326b91, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - IS_FACE
+  - DEBUG_MODE
+  - IS_BODY
   - UES_OCTAHEDRAL_SMOOTH_NORMAL
+  - USE_2D_SDF
+  - USE_LINEAR_PARTITIONED_ATTENUATION
   - USE_OUTLINE
-  - USE_RAMP_ATTENUATION
   m_InvalidKeywords:
   - USE_OUTLINE_TEST
   - USE_SIGMOID
@@ -46,7 +48,8 @@ Material:
     m_Floats:
     - _AttenuationMode: 1
     - _DebugMode: 1
-    - _DiffuseOffset: 0.27
+    - _DiffuseOffset: -0.06
+    - _Domain: 1
     - _IsBody: 1
     - _IsFace: 1
     - _LightMapMode: 1

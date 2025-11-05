@@ -16,9 +16,9 @@ Material:
   - IS_BODY
   - UES_OCTAHEDRAL_SMOOTH_NORMAL
   - USE_2D_SDF
+  - USE_LINEAR_PARTITIONED_ATTENUATION
   - USE_M_TEXTURE
   - USE_OUTLINE
-  - USE_RAMP_ATTENUATION
   m_InvalidKeywords:
   - USE_3D_SDF
   - USE_OUT
@@ -68,6 +68,7 @@ Material:
     m_Floats:
     - _AttenuationMode: 1
     - _DebugMode: 1
+    - _DiffuseOffset: 0.45
     - _Domain: 1
     - _IsBody: 1
     - _IsFace: 0

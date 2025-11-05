@@ -94,7 +94,8 @@ float4 SelectByMaterialID(float materialID, float4 option1, float4 option2, floa
                 : option1);
 }
 
-AttenuationData CalculateAttenuation(float albedoSmoothness, float NoL, float diffuseOffset)
+
+AttenuationData CalculateRegularAttenuation(float albedoSmoothness, float NoL, float diffuseOffset)
 {
     AttenuationData attenuationData;
     
@@ -146,6 +147,24 @@ AttenuationData CalculateFaceAttenuation(float albedoSmoothness, float angleFunc
     faceAttenuationData.forward = saturate(brightnessAttenuation);
 
     return faceAttenuationData;
+}
+
+
+AttenuationData CalculateAttenuation(float albedoSmoothness, float NoL, float diffuseOffset, float angleFunction, float angleMapping, float angleThreshold, float angleMapMask)
+{
+    AttenuationData attenuationData;
+    AttenuationData faceAttenuationData = CalculateFaceAttenuation(albedoSmoothness, angleFunction, angleMapping, angleThreshold);;
+    AttenuationData regularAttenuationData = CalculateRegularAttenuation(albedoSmoothness, NoL, diffuseOffset);
+    
+    attenuationData.shadowFade  = lerp(regularAttenuationData.shadowFade , faceAttenuationData.shadowFade , angleMapMask);
+    attenuationData.shadow      = lerp(regularAttenuationData.shadow     , faceAttenuationData.shadow     , angleMapMask);
+    attenuationData.shallowFade = lerp(regularAttenuationData.shallowFade, faceAttenuationData.shallowFade, angleMapMask);
+    attenuationData.shallow     = lerp(regularAttenuationData.shallow    , faceAttenuationData.shallow    , angleMapMask);
+    attenuationData.sss         = lerp(regularAttenuationData.sss        , faceAttenuationData.sss        , angleMapMask);
+    attenuationData.front       = lerp(regularAttenuationData.front      , faceAttenuationData.front      , angleMapMask);
+    attenuationData.forward     = lerp(regularAttenuationData.forward    , faceAttenuationData.forward    , angleMapMask);
+    
+    return attenuationData;
 }
 
 

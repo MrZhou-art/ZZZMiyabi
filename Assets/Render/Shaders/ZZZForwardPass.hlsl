@@ -252,7 +252,8 @@ float4 ZZZFrag(Varyings input) : SV_Target
 #endif
     
     
-    // ---------------- Albedo ---------------- 
+    // ---------------- Albedo ----------------
+    // TODO: Face Can't use sigmoid attenuation and Ramp Attenuation, this will be fixed in the future???
 #if defined(USE_SIGMOID_ATTENUATION) || defined(USE_RAMP_ATTENUATION)
 
     float halfLambert = clamp(NoL * 0.5 + 0.5, 0, 1);
@@ -284,12 +285,15 @@ float4 ZZZFrag(Varyings input) : SV_Target
     // attenuation
     AttenuationData attenuationData;
 #if defined(IS_FACE)
-    
-    attenuationData = CalculateFaceAttenuation(_AlbedoSmoothness, angleFunction, angleMapping, angleThreshold);
+
+    attenuationData = CalculateAttenuation(_AlbedoSmoothness, NoL, diffuseBias + _DiffuseOffset,
+        angleFunction, angleMapping, angleThreshold, angleMapMask);
+
+    // attenuationData = CalculateFaceAttenuation(_AlbedoSmoothness, angleFunction, angleMapping, angleThreshold);
     
 #else
-    
-    attenuationData = CalculateAttenuation(_AlbedoSmoothness, NoL, diffuseBias + _DiffuseOffset);
+        
+    attenuationData = CalculateRegularAttenuation(_AlbedoSmoothness, NoL, diffuseBias + _DiffuseOffset);
     
 #endif
     
