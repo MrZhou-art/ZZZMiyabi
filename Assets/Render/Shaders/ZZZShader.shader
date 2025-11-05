@@ -12,6 +12,11 @@ Shader "CelShaders/ZZZShader"
         [Title(Debug)]
         [Main(DebugGroup, DEBUG_MODE, off, on)] _DebugMode ("Use Debug Mode", float) = 1
         
+        [Title(SDF Debug Info)]
+        [KWEnum(DebugGroup, On, USE_WORLD_SPACE_ORIENTATION, Off, _)]
+        _UseWorldSpaceOrientation("Use world space orientation", float) = 0
+        
+        
         // Outline
         [Title(OutlineGruop, Outline Settings)]
         [Main(OutlineGruop, USE_OUTLINE, off, on)] _UseOutline ("Outline", float) = 1
@@ -191,22 +196,28 @@ Shader "CelShaders/ZZZShader"
             #pragma target 2.0
 
             // -------------- 宏开关 ---------------
+            // Debug
             #pragma shader_feature DEBUG_MODE
+            #pragma shader_feature USE_WORLD_SPACE_ORIENTATION
+            
 
             #pragma shader_feature USE_M_TEXTURE
 
             // TODO: PBR 工作流
             #pragma shader_feature _SPECULAR_SETUP
             #pragma shader_feature DYNAMICLIGHTMAP_ON
-            
+
+            // Domain
             #pragma shader_feature IS_FACE
             #pragma shader_feature IS_BODY
             #pragma shader_feature IS_HAIR
 
+            // Albedo
             #pragma shader_feature USE_SIGMOID_ATTENUATION
             #pragma shader_feature USE_RAMP_ATTENUATION
             #pragma shader_feature USE_LINEAR_PARTITIONED_ATTENUATION
 
+            // SDF
             #pragma  shader_feature USE_2D_SDF
             
             // -------- Shader ----------
@@ -246,6 +257,7 @@ Shader "CelShaders/ZZZShader"
 
             
             // -------------- 宏开关 ---------------
+            // Outline
             #pragma shader_feature USE_OUTLINE
 
             // Perlin Noise
@@ -256,9 +268,9 @@ Shader "CelShaders/ZZZShader"
             #pragma shader_feature UES_UV_PROJECTION_SMOOTH_NORMAL
             #pragma shader_feature UES_OCTAHEDRAL_SMOOTH_NORMAL
             
+            
             #pragma shader_feature _ENABLE_ALPHA_TEST_ON
             #pragma shader_feature _OLWVWD_ON
-
 
 
             // -------- Shader ----------

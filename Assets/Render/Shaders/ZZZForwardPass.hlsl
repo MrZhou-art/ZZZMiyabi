@@ -196,24 +196,28 @@ float4 ZZZFrag(Varyings input) : SV_Target
 
     float3 albedoColor = 0;
     float3 faceColor = 0;
+    
+    // ---------- for debug ---------
+#if defined(USE_WORLD_SPACE_ORIENTATION)
+    
+    headForwardDirWS = float3(0.0, 0.0, 1.0); 
+    headLeftDirWS = float3(-1.0, 0.0, 0.0); 
+    headUpDirWS = float3(0.0, 1.0, 0.0);
+
+#endif
 
     // ----------------- SDF -------------------
 #if defined(IS_FACE)
     // ---------------- 2D SDF ----------------
 #if defined(USE_2D_SDF)
 
-    // ---------- for debug ---------
-    headForwardDirWS = float3(0.0, 0.0, 1.0); 
-    headLeftDirWS = float3(1.0, 0.0, 0.0); 
-    headUpDirWS = float3(0.0, 1.0, 0.0);
-    
     // ----------------------------
     // For the world-space light direction, remove its parallel component
     // along the head up direction to yield a horizontal projection vector perpendicular to the head
     float3 HorizontalLightDirWS = normalize(lightDirWS - dot(lightDirWS, headUpDirWS) * headUpDirWS);
 
     // float isRightSide = step(0.0, dot(lightDirWS.xz, headLeftDirWS.xz));
-    float cosTheta = dot(HorizontalLightDirWS, headLeftDirWS);
+    float cosTheta = dot(HorizontalLightDirWS, -headLeftDirWS);
     float isRightSide = step(0.0, cosTheta);
     float linearTheta = FastAtan2(cosTheta, dot(-headForwardDirWS, HorizontalLightDirWS)) / PI;
     float angleThreshold = lerp(1 - linearTheta, 1 + linearTheta, step(linearTheta, 0.0));
