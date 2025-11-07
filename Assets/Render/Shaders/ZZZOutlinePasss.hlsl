@@ -92,7 +92,7 @@ float3 DecodeOctahedralSmoothNormalUV(float2 uv, float3 tangentWS, float3 bitang
     return TransformTangentToWorldNormal(normalTS, tangentWS, bitangentWS, normalWS);
 }
 
-// 柏林噪声
+// perlin noise
 float2 hash22(float2 p)
 {
     p = float2(dot(p, float2(127.1, 311.7)), dot(p, float2(269.5, 183.3)));
@@ -105,7 +105,7 @@ float2 hash21(float2 p)
     return -1.0 + 2.0 * frac(sin(h) * 43758.5453123);
 }
 
-//perlin
+// perlin
 float perlin_noise(float2 p)
 {
     float2 pi = floor(p);

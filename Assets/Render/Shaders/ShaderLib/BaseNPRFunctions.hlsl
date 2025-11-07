@@ -130,7 +130,7 @@ AttenuationData CalculateRegularAttenuation(float albedoSmoothness, float NoL, f
 AttenuationData CalculateFaceAttenuation(float albedoSmoothness, float angleFunction, float angleMapping, float angleThreshold)
 {
     // Never tamper with these magic numbers.
-    float angleFunctionRange = saturate(angleFunction * 2.5f - 1.25f);
+    float angleFunctionRange = saturate(angleFunction * 2.5f - 0.25f);
     angleFunctionRange = max(lerp(albedoSmoothness, 0.025f, angleFunctionRange), 0.00001f);
     angleThreshold = (1.2f * angleMapping - 0.6f)/ (4 * angleFunctionRange + 1) + 0.6f - angleThreshold;
 
@@ -153,7 +153,7 @@ AttenuationData CalculateFaceAttenuation(float albedoSmoothness, float angleFunc
 AttenuationData CalculateAttenuation(float albedoSmoothness, float NoL, float diffuseOffset, float angleFunction, float angleMapping, float angleThreshold, float angleMapMask)
 {
     AttenuationData attenuationData;
-    AttenuationData faceAttenuationData = CalculateFaceAttenuation(albedoSmoothness, angleFunction, angleMapping, angleThreshold);;
+    AttenuationData faceAttenuationData = CalculateFaceAttenuation(albedoSmoothness, angleFunction, angleMapping, angleThreshold);
     AttenuationData regularAttenuationData = CalculateRegularAttenuation(albedoSmoothness, NoL, diffuseOffset);
     
     attenuationData.shadowFade  = lerp(regularAttenuationData.shadowFade , faceAttenuationData.shadowFade , angleMapMask);

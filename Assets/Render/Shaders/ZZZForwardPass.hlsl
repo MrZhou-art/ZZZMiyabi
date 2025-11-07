@@ -8,32 +8,6 @@
 #include "Assets/Render/Shaders/ShaderLib/BaseNPRFunctions.hlsl"
 #include "Assets/Render/Shaders/ShaderLib/BasePBRFunctions.hlsl"
 
-// for debug
-float2 hash22(float2 p)
-{
-    p = float2(dot(p, float2(127.1, 311.7)), dot(p, float2(269.5, 183.3)));
-    return -1.0 + 2.0 * frac(sin(p) * 43758.5453123);
-}
-
-float2 hash21(float2 p)
-{
-    float h = dot(p, float2(127.1, 311.7));
-    return -1.0 + 2.0 * frac(sin(h) * 43758.5453123);
-}
-
-//perlin
-float perlin_noise(float2 p)
-{
-    float2 pi = floor(p);
-    float2 pf = p - pi;
-    float2 w = pf * pf * (3.0 - 2.0 * pf);
-    return lerp(lerp(dot(hash22(pi + float2(0.0, 0.0)), pf - float2(0.0, 0.0)),
-                     dot(hash22(pi + float2(1.0, 0.0)), pf - float2(1.0, 0.0)), w.x),
-                lerp(dot(hash22(pi + float2(0.0, 1.0)), pf - float2(0.0, 1.0)),
-                     dot(hash22(pi + float2(1.0, 1.0)), pf - float2(1.0, 1.0)), w.x), w.y);
-}
-
-
 //---------------- Structs ---------------------
 struct Attributes
 {
@@ -284,17 +258,38 @@ float4 ZZZFrag(Varyings input) : SV_Target
 
     // attenuation
     AttenuationData attenuationData;
+    
 #if defined(IS_FACE)
 
     attenuationData = CalculateAttenuation(_AlbedoSmoothness, NoL, diffuseBias + _DiffuseOffset,
         angleFunction, angleMapping, angleThreshold, angleMapMask);
 
-    // attenuationData = CalculateFaceAttenuation(_AlbedoSmoothness, angleFunction, angleMapping, angleThreshold);
     
 #else
         
     attenuationData = CalculateRegularAttenuation(_AlbedoSmoothness, NoL, diffuseBias + _DiffuseOffset);
     
+#endif
+
+    // Debug for now, those will be removed in the future 
+#if defined(DEBUG_MODE) &&  defined(IS_FACE)
+    
+    // float angleFunctionRange = saturate(angleFunction * 2.5f - 1.25f);
+    float angleFunctionRange = saturate(angleFunction * 2.5f - 0.25f);
+    angleFunctionRange = max(lerp(_AlbedoSmoothness, 0.025f, angleFunctionRange), 0.00001f);
+    angleThreshold = (1.2f * angleMapping - 0.6f)/ (4 * angleFunctionRange + 1) + 0.6f - angleThreshold;
+
+    float shadowAttenuation = angleThreshold / angleFunctionRange;
+    float brightnessAttenuation = 8.0f * angleThreshold - 16.0f * angleFunctionRange;
+
+    attenuationData.shadowFade = saturate(1 - shadowAttenuation);
+    attenuationData.shadow = 0.0f;
+    attenuationData.shallowFade = 0.0f;
+    attenuationData.shallow = 0.0f;
+    attenuationData.sss = min(saturate(shadowAttenuation), saturate(1.0f - (shadowAttenuation - 1.0f)));
+    attenuationData.front = min(saturate(shadowAttenuation - 1.0f), saturate(1.0f - brightnessAttenuation));
+    attenuationData.forward = saturate(brightnessAttenuation);
+
 #endif
     
     // Select Color by MaterialID
@@ -359,10 +354,6 @@ float4 ZZZFrag(Varyings input) : SV_Target
 #ifdef DEBUG_MODE
     
     // float3 smoothNormalWS = DecodeUVProjectionSmoothNormal(uv1, input.tangentWS, input.bitangentWS, input.normalWS);
-    
-    float2 noiseSampleUV = uv;
-    noiseSampleUV = noiseSampleUV * _NoiseTillOffset.xy + _NoiseTillOffset.zw;
-    float perlinNoise = perlin_noise(noiseSampleUV);
     
     float3 f0 = lerp(0.04, albedo.rgb, metallic);
     float3 directBRDTest = DirectPBR(clamp(NoL, 0, 1), NoV, NoH, HoV, albedo.rgb, metallic, 1 - smoothness, f0, lightColor);

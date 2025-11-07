@@ -12,7 +12,6 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - DEBUG_MODE
   - DYNAMICLIGHTMAP_ON
   - IS_FACE
   - UES_OCTAHEDRAL_SMOOTH_NORMAL
@@ -91,7 +90,10 @@ Material:
     - _BumpScale: 1
     - _Cull: 2
     - _Cutoff: 0.5
-    - _DebugMode: 1
+    - _DebugMode: 0
+    - _DebugValue1: 1
+    - _DebugValue2: 2.9
+    - _DebugValue3: 100
     - _DiffuseOffset: 0
     - _Domain: 0
     - _DomainSettings: 1

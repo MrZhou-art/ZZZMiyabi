@@ -11,6 +11,10 @@ Shader "CelShaders/ZZZShader"
         // Debug Mode 
         [Title(Debug)]
         [Main(DebugGroup, DEBUG_MODE, off, on)] _DebugMode ("Use Debug Mode", float) = 1
+        [Sub(DebugGroup)] _DebugValue1("Debug Value 1", Range(-1, 1))    = 1.0
+        [Sub(DebugGroup)] _DebugValue2("Debug Value 2", Range(-10, 10))   = 10.0
+        [Sub(DebugGroup)] _DebugValue3("Debug Value 3", Range(-100, 100))  = 100.0
+        
         
         [Title(SDF Debug Info)]
         [KWEnum(DebugGroup, On, USE_WORLD_SPACE_ORIENTATION, Off, _)]

@@ -12,8 +12,7 @@ Material:
   m_Parent: {fileID: 2100000, guid: 9d6e650eaae570f46acc02d569326b91, type: 2}
   m_ModifiedSerializedProperties: 16
   m_ValidKeywords:
-  - DEBUG_MODE
-  - IS_BODY
+  - IS_FACE
   - UES_OCTAHEDRAL_SMOOTH_NORMAL
   - USE_2D_SDF
   - USE_LINEAR_PARTITIONED_ATTENUATION
@@ -57,7 +56,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Domain: 1
+    - _Domain: 0
     - _LightMapMode: 1
     - _SigmoidAttenuationOffset: 0.73
     - _SigmoidAttenuationSmoothness: 25

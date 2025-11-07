@@ -1,5 +1,9 @@
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 // for debug
+float _DebugValue1;
+float _DebugValue2;
+float _DebugValue3;
+
 #if defined(DEBUG_MODE)
 
 float4 _NoiseTillOffset;
