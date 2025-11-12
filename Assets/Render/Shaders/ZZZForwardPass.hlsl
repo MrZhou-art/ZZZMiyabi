@@ -1,7 +1,7 @@
 // ----------- Build in Functions --------------
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl" 
 
 
 // -------------- Base Functions --------------
@@ -121,6 +121,8 @@ float4 ZZZFrag(Varyings input) : SV_Target
 
     // ------ Base Data ------
     float2 uv = input.uv;
+    float depth = input.positionCS.z;
+    float depth01 = LinearEyeDepth(depth, _ZBufferParams);
     
 #if defined(DEBUG_MODE)
     
@@ -279,6 +281,7 @@ float4 ZZZFrag(Varyings input) : SV_Target
 
     // Tinting
     albedoColor = CalculateAlbedo(
+        depth * _DebugValue1,
         selectedShadowColor.rgb,
         selectedShallowColor.rgb,
         _PostShadowFadeTint.rgb,
@@ -338,7 +341,6 @@ float4 ZZZFrag(Varyings input) : SV_Target
     float3 directBRDTest = DirectPBR(clamp(NoL, 0, 1), NoV, NoH, HoV, albedo.rgb, metallic, 1 - smoothness, f0, lightColor);
 
     // return half4(bakedGI, 1);
-
     return half4(albedoColor, 1.0);
     
 #endif

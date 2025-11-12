@@ -167,8 +167,18 @@ AttenuationData CalculateAttenuation(float albedoSmoothness, float NoL, float di
     return attenuationData;
 }
 
+float3 DepthAttenuation(float3 color, float depth)
+{
+    float averageColor = max(dot(color, 0.3333333333f), 0.0001f);
+    float depthThreshold = saturate(depth * 0.4375f);
+
+    return lerp(color/averageColor, color, depthThreshold);
+}
+
+
 
 float3 CalculateAlbedo(
+    float depth,
     float3 ShadowColor,
     float3 ShallowColor,
     float3 ShadowFadeTint,
@@ -180,11 +190,14 @@ float3 CalculateAlbedo(
     AttenuationData attenuation,
     float3 lightColor)
 {
+    float3 shadowAttenuationColor = DepthAttenuation(ShadowColor.rgb, depth);
+    float3 shadllowAttenuationColor = DepthAttenuation(ShallowColor.rgb, depth);
+    
     // Tinting
-    float3 shadowFadeColor  = attenuation.shadowFade  * ShadowFadeTint.rgb  * ShadowColor.rgb;
-    float3 shadowColor      = attenuation.shadow      * ShadowTint.rgb      * ShadowColor.rgb;
-    float3 shallowFadeColor = attenuation.shallowFade * ShallowFadeTint.rgb * ShallowColor.rgb;
-    float3 shallowColor     = attenuation.shallow     * ShallowTint.rgb     * ShallowColor.rgb;
+    float3 shadowFadeColor  = attenuation.shadowFade  * ShadowFadeTint.rgb  * shadowAttenuationColor;
+    float3 shadowColor      = attenuation.shadow      * ShadowTint.rgb      * shadowAttenuationColor;
+    float3 shallowFadeColor = attenuation.shallowFade * ShallowFadeTint.rgb * shadllowAttenuationColor;
+    float3 shallowColor     = attenuation.shallow     * ShallowTint.rgb     * shadllowAttenuationColor;
     float3 sssColor         = attenuation.sss         * SSSTint.rgb         * ShallowColor.rgb;
     float3 frontColor       = attenuation.front       * FrontTint.rgb       * ShallowColor.rgb;
     float3 forwardColor     = attenuation.forward;
