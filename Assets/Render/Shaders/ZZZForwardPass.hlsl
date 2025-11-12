@@ -270,27 +270,6 @@ float4 ZZZFrag(Varyings input) : SV_Target
     attenuationData = CalculateRegularAttenuation(_AlbedoSmoothness, NoL, diffuseBias + _DiffuseOffset);
     
 #endif
-
-    // Debug for now, those will be removed in the future 
-#if defined(DEBUG_MODE) &&  defined(IS_FACE)
-    
-    // float angleFunctionRange = saturate(angleFunction * 2.5f - 1.25f);
-    float angleFunctionRange = saturate(angleFunction * 2.5f - 0.25f);
-    angleFunctionRange = max(lerp(_AlbedoSmoothness, 0.025f, angleFunctionRange), 0.00001f);
-    angleThreshold = (1.2f * angleMapping - 0.6f)/ (4 * angleFunctionRange + 1) + 0.6f - angleThreshold;
-
-    float shadowAttenuation = angleThreshold / angleFunctionRange;
-    float brightnessAttenuation = 8.0f * angleThreshold - 16.0f * angleFunctionRange;
-
-    attenuationData.shadowFade = saturate(1 - shadowAttenuation);
-    attenuationData.shadow = 0.0f;
-    attenuationData.shallowFade = 0.0f;
-    attenuationData.shallow = 0.0f;
-    attenuationData.sss = min(saturate(shadowAttenuation), saturate(1.0f - (shadowAttenuation - 1.0f)));
-    attenuationData.front = min(saturate(shadowAttenuation - 1.0f), saturate(1.0f - brightnessAttenuation));
-    attenuationData.forward = saturate(brightnessAttenuation);
-
-#endif
     
     // Select Color by MaterialID
     float4 selectedShadowColor = SelectByMaterialID(materialID, _ShadowColor1, _ShadowColor2, _ShadowColor3,

@@ -67,7 +67,7 @@ Material:
     m_Floats:
     - _AttenuationMode: 1
     - _DebugMode: 1
-    - _DiffuseOffset: 0.49
+    - _DiffuseOffset: 0.32
     - _Domain: 1
     - _IsBody: 1
     - _IsFace: 0
