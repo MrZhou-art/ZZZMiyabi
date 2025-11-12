@@ -122,7 +122,7 @@ float4 ZZZFrag(Varyings input) : SV_Target
     // ------ Base Data ------
     float2 uv = input.uv;
     float depth = input.positionCS.z;
-    float depth01 = LinearEyeDepth(depth, _ZBufferParams);
+    float linearDepth = LinearEyeDepth(depth, _ZBufferParams);
     
 #if defined(DEBUG_MODE)
     
@@ -281,7 +281,7 @@ float4 ZZZFrag(Varyings input) : SV_Target
 
     // Tinting
     albedoColor = CalculateAlbedo(
-        depth * _DebugValue1,
+        linearDepth,
         selectedShadowColor.rgb,
         selectedShallowColor.rgb,
         _PostShadowFadeTint.rgb,

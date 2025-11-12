@@ -169,10 +169,10 @@ AttenuationData CalculateAttenuation(float albedoSmoothness, float NoL, float di
 
 float3 DepthAttenuation(float3 color, float depth)
 {
-    float averageColor = max(dot(color, 0.3333333333f), 0.0001f);
-    float depthThreshold = saturate(depth * 0.4375f);
+    float averageColor = max(dot(color, float3(0.333f, 0.333f, 0.333f)), 0.00001f);
+    float depthThreshold = saturate(depth * 18.0f);
 
-    return lerp(color/averageColor, color, depthThreshold);
+    return lerp(color/averageColor, color, saturate(depthThreshold));
 }
 
 
@@ -190,7 +190,7 @@ float3 CalculateAlbedo(
     AttenuationData attenuation,
     float3 lightColor)
 {
-    float3 shadowAttenuationColor = DepthAttenuation(ShadowColor.rgb, depth);
+    float3 shadowAttenuationColor   = DepthAttenuation(ShadowColor.rgb, depth);
     float3 shadllowAttenuationColor = DepthAttenuation(ShallowColor.rgb, depth);
     
     // Tinting

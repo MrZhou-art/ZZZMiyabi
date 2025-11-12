@@ -12,6 +12,7 @@ Material:
   m_Parent: {fileID: 2100000, guid: 9d6e650eaae570f46acc02d569326b91, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - DEBUG_MODE
   - IS_BODY
   - UES_OCTAHEDRAL_SMOOTH_NORMAL
   - USE_2D_SDF
