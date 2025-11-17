@@ -82,7 +82,7 @@ Material:
     m_Floats:
     - LightMapSettings: 1
     - _AlbedoSettings: 1
-    - _AlbedoSmoothness: 0.349
+    - _AlbedoSmoothness: 0.094
     - _AlphaClip: 0
     - _AlphaToMask: 0
     - _AttenuationMode: 2
@@ -156,11 +156,11 @@ Material:
     - _NoiseTillOffset: {r: 15, g: 15, b: 1, a: 1}
     - _OutlineColor: {r: 0.72327036, g: 0.72327036, b: 0.72327036, a: 1}
     - _PostFrontTint: {r: 1, g: 1, b: 1, a: 1}
-    - _PostSSSTint: {r: 1, g: 0.879623, b: 0.799103, a: 1}
+    - _PostSSSTint: {r: 1, g: 0.9450981, b: 0.9058824, a: 1}
     - _PostShadowFadeTint: {r: 1, g: 1, b: 1, a: 1}
-    - _PostShadowTint: {r: 0.6104959, g: 0.6104959, b: 0.6104959, a: 1}
-    - _PostShallowFadeTint: {r: 0.791298, g: 0.791298, b: 0.791298, a: 1}
-    - _PostShallowTint: {r: 0.791298, g: 0.791298, b: 0.791298, a: 1}
+    - _PostShadowTint: {r: 0.80392164, g: 0.80392164, b: 0.80392164, a: 1}
+    - _PostShallowFadeTint: {r: 0.90196085, g: 0.90196085, b: 0.90196085, a: 1}
+    - _PostShallowTint: {r: 0.90196085, g: 0.90196085, b: 0.90196085, a: 1}
     - _SDFBrightColor: {r: 1, g: 0.94, b: 0.932, a: 1}
     - _SDFShadowColor: {r: 0.75, g: 0.42299998, b: 0.35899997, a: 1}
     - _SSSColor: {r: 1, g: 0.5, b: 0.5, a: 1}

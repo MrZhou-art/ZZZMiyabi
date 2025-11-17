@@ -68,7 +68,7 @@ Material:
     m_Floats:
     - _AttenuationMode: 1
     - _DebugMode: 1
-    - _DiffuseOffset: 0.32
+    - _DiffuseOffset: 0.08
     - _Domain: 1
     - _IsBody: 1
     - _IsFace: 0
@@ -84,12 +84,12 @@ Material:
     - _UseSigmoidShadow: 0
     m_Colors:
     - _FrontColor: {r: 1, g: 1, b: 1, a: 1}
-    - _ShadowColor1: {r: 0.53524375, g: 0.55448294, b: 0.61006284, a: 1}
-    - _ShadowColor2: {r: 0.3882353, g: 0.4392157, b: 0.50980395, a: 1}
+    - _ShadowColor1: {r: 0.7254902, g: 0.7490196, b: 0.8196079, a: 1}
+    - _ShadowColor2: {r: 0.8745099, g: 0.909804, b: 0.9294118, a: 1}
     - _ShadowColor3: {r: 0.7058824, g: 0.54509807, b: 0.54901963, a: 1}
-    - _ShadowColor4: {r: 0.8666667, g: 0.7490196, b: 0.7490196, a: 1}
+    - _ShadowColor4: {r: 0.8000001, g: 0.64705884, b: 0.5019608, a: 1}
     - _ShadowColor5: {r: 0.4, g: 0.3882353, b: 0.48235294, a: 1}
-    - _ShallowColor1: {r: 0.85490197, g: 0.8901961, b: 0.9098039, a: 1}
+    - _ShallowColor1: {r: 0.8745099, g: 0.909804, b: 0.9294118, a: 1}
     - _ShallowColor2: {r: 0.5764706, g: 0.627451, b: 0.69803923, a: 1}
     - _ShallowColor3: {r: 0.9019608, g: 0.74509805, b: 0.7411765, a: 1}
     - _ShallowColor4: {r: 0.9019608, g: 0.74509805, b: 0.7411765, a: 1}

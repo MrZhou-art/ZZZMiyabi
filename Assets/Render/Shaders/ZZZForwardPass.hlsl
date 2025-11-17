@@ -198,7 +198,6 @@ float4 ZZZFrag(Varyings input) : SV_Target
     float linearTheta = FastAtan2(cosTheta, dot(-headForwardDirWS, HorizontalLightDirWS)) / PI;
     float angleThreshold = lerp(1 - linearTheta, 1 + linearTheta, step(linearTheta, 0.0));
     
-    
     float2 uv_inverseX = float2(1.0 - uv.x, uv.y);
     float2 sdfTexUV = lerp(uv, uv_inverseX, isRightSide);
 

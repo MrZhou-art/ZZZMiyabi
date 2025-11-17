@@ -65,7 +65,7 @@ Material:
     - _AlbedoSettings: 1
     - _AttenuationMode: 2
     - _DebugMode: 1
-    - _DiffuseOffset: 0.83
+    - _DiffuseOffset: 0.7
     - _Domain: 0
     - _IsFace: 1
     - _LightMapMode: 1
@@ -74,14 +74,15 @@ Material:
     - _UseMTexture: 1
     - _UseOutline: 1
     - _UseRampShadow: 0
+    - _UseWorldSpaceOrientation: 1
     - _group: 0
     m_Colors:
     - _MainTint: {r: 1, g: 1, b: 1, a: 1}
-    - _ShadowColor1: {r: 0.72156864, g: 0.52156866, b: 0.52156866, a: 1}
+    - _ShadowColor1: {r: 0.9056604, g: 0.74054086, b: 0.6521893, a: 1}
     - _ShadowColor2: {r: 0.32156864, g: 0.32156864, b: 0.32156864, a: 1}
     - _ShadowColor3: {r: 0.32156864, g: 0.32156864, b: 0.32156864, a: 1}
     - _ShadowColor4: {r: 0.32156864, g: 0.32156864, b: 0.32156864, a: 1}
     - _ShadowColor5: {r: 0.32156864, g: 0.32156864, b: 0.32156864, a: 1}
-    - _ShallowColor1: {r: 0.85490197, g: 0.72156864, b: 0.72156864, a: 1}
+    - _ShallowColor1: {r: 1, g: 0.8993291, b: 0.8459119, a: 1}
     - _ShallowColor2: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
